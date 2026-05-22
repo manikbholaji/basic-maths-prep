@@ -106,16 +106,47 @@ def _choice_to_index(sel: str, n_choices: int) -> int:
     return max(0, min(idx, max(n_choices - 1, 0)))
 
 
+def _recommend_next_index(questions: list[dict], answers: dict, current_idx: int) -> int | None:
+    if not questions:
+        return None
+
+    def status_for(i: int) -> str:
+        q = questions[i]
+        sel = answers.get(q.get("id"))
+        if not sel:
+            return "unseen"
+        selected_idx = _choice_to_index(sel, len(q.get("choices", []) or []))
+        correct_idx = int(q.get("answer", 0))
+        return "correct" if selected_idx == correct_idx else "incorrect"
+
+    current_status = status_for(current_idx)
+
+    order = list(range(current_idx + 1, len(questions))) + list(range(0, current_idx))
+    if current_status == "incorrect":
+        priorities = ["unseen", "incorrect"]
+    else:
+        priorities = ["unseen", "incorrect"]
+
+    for p in priorities:
+        for i in order:
+            if status_for(i) == p:
+                return i
+    return None
+
+
 def _render_question_player(questions: list[dict], prefix: str, title: str, submit_label: str) -> tuple[bool, dict]:
     if not questions:
         return False, {}
 
     idx_key = f"{prefix}_index"
     ans_key = f"{prefix}_answers"
+    flag_key = f"{prefix}_flags"
     if idx_key not in st.session_state:
         st.session_state[idx_key] = 0
     if ans_key not in st.session_state:
         st.session_state[ans_key] = {}
+    if flag_key not in st.session_state:
+        st.session_state[flag_key] = {}
 
     total = len(questions)
     current_idx = max(0, min(int(st.session_state[idx_key]), total - 1))
@@ -143,6 +174,20 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
     st.caption(f"Question {current_idx + 1} of {total}")
 
     q = questions[current_idx]
+    flags = st.session_state.get(flag_key) or {}
+    top_actions = st.columns([1.2, 1, 1])
+    with top_actions[0]:
+        pass
+    with top_actions[1]:
+        st.caption("Status legend: ○ unseen · ● answered · ⚑ flagged")
+    with top_actions[2]:
+        current_flag = bool(flags.get(q.get("id"), False))
+        flag_label = "Unflag question" if current_flag else "Flag question"
+        if st.button(flag_label, key=f"{prefix}_flag_btn"):
+            flags[q.get("id")] = not current_flag
+            st.session_state[flag_key] = flags
+            st.experimental_rerun()
+
     _render_math_text(q.get("question", ""))
     choices = q.get("choices", []) or []
     labels = [chr(65 + i) for i in range(len(choices))]
@@ -157,14 +202,30 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
     answers[q.get("id")] = selected
     st.session_state[ans_key] = answers
 
-    if total <= 12:
-        palette_cols = st.columns(min(total, 6))
+    if total <= 30:
+        palette_cols = st.columns(min(total, 10))
         for i in range(total):
             col = palette_cols[i % len(palette_cols)]
-            answered = "*" if (st.session_state.get(ans_key) or {}).get(questions[i].get("id")) else ""
-            if col.button(f"Q{i+1}{answered}", key=f"{prefix}_qbtn_{i}"):
+            qid = questions[i].get("id")
+            ans = (st.session_state.get(ans_key) or {}).get(qid)
+            flagged = bool((st.session_state.get(flag_key) or {}).get(qid))
+            if flagged:
+                marker = "⚑"
+            elif ans:
+                marker = "●"
+            else:
+                marker = "○"
+            current = "▸" if i == current_idx else ""
+            if col.button(f"{current}Q{i+1}{marker}", key=f"{prefix}_qbtn_{i}"):
                 st.session_state[idx_key] = i
                 st.experimental_rerun()
+
+    next_idx = _recommend_next_index(questions, st.session_state.get(ans_key) or {}, current_idx)
+    if next_idx is not None and next_idx != current_idx:
+        st.info(f"Recommended next question: Q{next_idx + 1}")
+        if st.button("Go to recommended next", key=f"{prefix}_recommended_next"):
+            st.session_state[idx_key] = next_idx
+            st.experimental_rerun()
 
     submit_clicked = st.button(submit_label, key=f"{prefix}_submit")
     return submit_clicked, (st.session_state.get(ans_key) or {})
@@ -352,6 +413,10 @@ def _init_state():
         st.session_state.maths_booking = None
     if "maths_auth_user" not in st.session_state:
         st.session_state.maths_auth_user = None
+    if "maths_saved_practice_session" not in st.session_state:
+        st.session_state.maths_saved_practice_session = None
+    if "maths_saved_diagnostic_session" not in st.session_state:
+        st.session_state.maths_saved_diagnostic_session = None
 
 
 def _draft_profile_from_state() -> dict:
@@ -459,6 +524,8 @@ def _render_account_panel():
                     st.session_state.maths_practice_result = saved.get("practice_result")
                 if saved.get("quiz_result"):
                     st.session_state.maths_quiz_result = saved.get("quiz_result")
+                st.session_state.maths_saved_practice_session = saved.get("practice_session")
+                st.session_state.maths_saved_diagnostic_session = saved.get("diagnostic_session")
                 st.success(msg)
                 st.experimental_rerun()
             else:
@@ -586,6 +653,27 @@ def _render_revision_timeline(profile):
 def _render_practice_lab(profile, ai_client, provider):
     st.markdown("<div class='bm-eyebrow'>Practice lab</div>", unsafe_allow_html=True)
     st.subheader("Ask the tutor")
+
+    user = st.session_state.get("maths_auth_user")
+    if user and user.get("email"):
+        resume_cols = st.columns(2)
+        saved_practice = st.session_state.get("maths_saved_practice_session")
+        saved_diag = st.session_state.get("maths_saved_diagnostic_session")
+        with resume_cols[0]:
+            if saved_practice and saved_practice.get("questions") and not st.session_state.get("maths_practice_questions"):
+                if st.button("Resume unfinished practice", key="resume_saved_practice"):
+                    st.session_state.maths_practice_questions = saved_practice.get("questions", [])
+                    st.session_state["practice_answers"] = saved_practice.get("answers", {})
+                    st.session_state["practice_index"] = int(saved_practice.get("index", 0))
+                    st.experimental_rerun()
+        with resume_cols[1]:
+            if saved_diag and saved_diag.get("questions") and not st.session_state.get("maths_diagnostic_questions"):
+                if st.button("Resume unfinished diagnostic", key="resume_saved_diag"):
+                    st.session_state.maths_diagnostic_questions = saved_diag.get("questions", [])
+                    st.session_state["diagnostic_answers"] = saved_diag.get("answers", {})
+                    st.session_state["diagnostic_index"] = int(saved_diag.get("index", 0))
+                    st.experimental_rerun()
+
     # If a practice set was requested from a recommendation card, render it first
     if st.session_state.get("maths_practice_questions"):
         questions = st.session_state.get("maths_practice_questions") or []
@@ -596,6 +684,15 @@ def _render_practice_lab(profile, ai_client, provider):
             submit_label="Submit practice",
         )
 
+        if user and user.get("email"):
+            checkpoint = {
+                "questions": questions,
+                "answers": practice_answers,
+                "index": int(st.session_state.get("practice_index", 0)),
+            }
+            _save_user_progress(user.get("email"), {"practice_session": checkpoint})
+            st.session_state.maths_saved_practice_session = checkpoint
+
         if submit_practice:
             responses = {}
             for q in questions:
@@ -604,9 +701,9 @@ def _render_practice_lab(profile, ai_client, provider):
 
             result = mcq_manager.evaluate_responses(responses)
             st.session_state.maths_practice_result = result
-            user = st.session_state.get("maths_auth_user")
             if user and user.get("email"):
-                _save_user_progress(user.get("email"), {"practice_result": result})
+                _save_user_progress(user.get("email"), {"practice_result": result, "practice_session": None})
+                st.session_state.maths_saved_practice_session = None
             try:
                 del st.session_state["maths_practice_questions"]
                 del st.session_state["practice_answers"]
@@ -768,6 +865,10 @@ def _render_practice_lab(profile, ai_client, provider):
             st.session_state.maths_diagnostic_questions = questions
             st.session_state["diagnostic_answers"] = {}
             st.session_state["diagnostic_index"] = 0
+            if user and user.get("email"):
+                checkpoint = {"questions": questions, "answers": {}, "index": 0}
+                _save_user_progress(user.get("email"), {"diagnostic_session": checkpoint})
+                st.session_state.maths_saved_diagnostic_session = checkpoint
 
     if st.session_state.get("maths_diagnostic_questions"):
         questions = st.session_state.maths_diagnostic_questions
@@ -778,6 +879,15 @@ def _render_practice_lab(profile, ai_client, provider):
             submit_label="Submit diagnostic",
         )
 
+        if user and user.get("email"):
+            checkpoint = {
+                "questions": questions,
+                "answers": diagnostic_answers,
+                "index": int(st.session_state.get("diagnostic_index", 0)),
+            }
+            _save_user_progress(user.get("email"), {"diagnostic_session": checkpoint})
+            st.session_state.maths_saved_diagnostic_session = checkpoint
+
         if submit_diag:
             responses = {}
             for q in questions:
@@ -786,9 +896,9 @@ def _render_practice_lab(profile, ai_client, provider):
 
             result = mcq_manager.evaluate_responses(responses)
             st.session_state.maths_quiz_result = result
-            user = st.session_state.get("maths_auth_user")
             if user and user.get("email"):
-                _save_user_progress(user.get("email"), {"quiz_result": result})
+                _save_user_progress(user.get("email"), {"quiz_result": result, "diagnostic_session": None})
+                st.session_state.maths_saved_diagnostic_session = None
             # clear questions after submission
             del st.session_state.maths_diagnostic_questions
             try:
