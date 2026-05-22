@@ -38,7 +38,8 @@ def _render_math_text(txt: str):
             st.latex(s)
             return
         except Exception:
-            st.markdown(s)
+            wrapped = re.sub(r"(?<!\$)(\b\d+\s*[+\-*/=^]\s*\d+(?:\s*[+\-*/=^]\s*\d+)*)", r"$\1$", s)
+            st.markdown(wrapped)
             return
     # default: markdown paragraph
     st.markdown(s)
@@ -132,6 +133,7 @@ st.markdown(
     }
 
     .stButton > button { border-radius:8px; border: none; background: var(--accent); color: white; font-weight:600; padding:0.6rem 0.85rem }
+    .stButton > button p, .stButton > button span, .stButton > button div { color: white !important; }
     .stButton > button:hover { filter:brightness(0.95); }
 
     section[data-testid="stSidebar"] { background: linear-gradient(180deg,#ffffff 0%, #f7fbfc 100%); border-right: 1px solid var(--line); }

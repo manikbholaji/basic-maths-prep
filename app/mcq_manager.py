@@ -72,6 +72,134 @@ def _extract_brief(tex: str) -> str:
     return re.sub(r"\s+", " ", tex)[:200]
 
 
+def _question_numeric_score(question: Dict) -> int:
+    parts = [str(question.get("question", ""))]
+    parts.extend(str(choice) for choice in (question.get("choices", []) or []))
+    text = " ".join(parts)
+    score = 0
+    if re.search(r"\$.*\$|\\frac|\\sqrt|x\^|x\b|=", text):
+        score += 4
+    if re.search(r"\d", text):
+        score += 3
+    if re.search(r"[+\-*/]", text):
+        score += 2
+    if re.search(r"solve|find|calculate|evaluate|simplify|what is|how many|cost|percent|ratio", text, re.I):
+        score += 2
+    return score
+
+
+def _prioritize_questions(items: List[Dict]) -> List[Dict]:
+    tagged = list(items)
+    random.shuffle(tagged)
+    return sorted(tagged, key=lambda q: _question_numeric_score(q), reverse=True)
+
+
+def _int_choices(correct: int, spread: int = 3) -> List[str]:
+    candidates = [correct, correct + 1, correct - 1, correct + spread]
+    seen = set()
+    choices = []
+    for value in candidates:
+        if value not in seen:
+            seen.add(value)
+            choices.append(str(value))
+    while len(choices) < 4:
+        value = correct + len(choices) + 1
+        if value not in seen:
+            seen.add(value)
+            choices.append(str(value))
+    return choices[:4]
+
+
+def _make_numerical_topic_questions(title: str, brief: str, level: str, seed: int) -> List[Dict]:
+    a = seed % 9 + 3
+    b = (seed // 3) % 8 + 2
+    c = (seed // 7) % 6 + 2
+    topic_note = brief[:90] or f"Practice focus for {title}."
+
+    if level == "primary":
+        q1_ans = a + b
+        q2_ans = a * c
+        q3_ans = q2_ans - b
+        return [
+            {
+                "id": f"{title}-num-1",
+                "question": f"What is ${a} + {b}$?",
+                "choices": _int_choices(q1_ans),
+                "answer": 0,
+                "explanation": f"Add the numbers directly. {topic_note}",
+            },
+            {
+                "id": f"{title}-num-2",
+                "question": f"A student solves {a} questions each day for {c} days. How many questions are solved in all?",
+                "choices": _int_choices(q2_ans),
+                "answer": 0,
+                "explanation": f"Multiply the daily count by the number of days. {topic_note}",
+            },
+            {
+                "id": f"{title}-num-3",
+                "question": f"What is ${a * c} - {b}$?",
+                "choices": _int_choices(q3_ans),
+                "answer": 0,
+                "explanation": f"Subtract carefully and check the count. {topic_note}",
+            },
+        ]
+
+    if level == "middle":
+        q1_ans = a * 25
+        q2_ans = a * b
+        q3_ans = (c * 3) + a
+        return [
+            {
+                "id": f"{title}-num-1",
+                "question": f"What is {a * 25}% of 100?",
+                "choices": _int_choices(q1_ans),
+                "answer": 0,
+                "explanation": f"Convert the percentage to a value out of 100. {topic_note}",
+            },
+            {
+                "id": f"{title}-num-2",
+                "question": f"The ratio of pens to pencils is 1:{b}. If there are {a} pens, how many pencils are there?",
+                "choices": _int_choices(q2_ans),
+                "answer": 0,
+                "explanation": f"Use the ratio to scale the second quantity. {topic_note}",
+            },
+            {
+                "id": f"{title}-num-3",
+                "question": f"What is $3 \\times {c} + {a}$?",
+                "choices": _int_choices(q3_ans),
+                "answer": 0,
+                "explanation": f"Follow order of operations. {topic_note}",
+            },
+        ]
+
+    q1_ans = a * b - c
+    q2_ans = 2 * a + 3 * b
+    q3_ans = a * a - b
+    return [
+        {
+            "id": f"{title}-num-1",
+            "question": f"Solve $2x + {b} = {2 * a + b}$.",
+            "choices": _int_choices(a),
+            "answer": 0,
+            "explanation": f"Subtract {b} from both sides and divide by 2. {topic_note}",
+        },
+        {
+            "id": f"{title}-num-2",
+            "question": f"If $x = {a}$, what is the value of $2x + 3 \\times {b}$?",
+            "choices": _int_choices(q2_ans),
+            "answer": 0,
+            "explanation": f"Substitute the value of x and evaluate carefully. {topic_note}",
+        },
+        {
+            "id": f"{title}-num-3",
+            "question": f"If $x = {a}$, what is the value of $x^2 - {b}$?",
+            "choices": _int_choices(q3_ans),
+            "answer": 0,
+            "explanation": f"Square first, then subtract. {topic_note}",
+        },
+    ]
+
+
 def build_kb_from_zip(zip_path: str, out_path: Optional[str] = None, regenerate: bool = False) -> Dict:
     """Read .tex files from a zip and auto-generate an MCQ KB.
 
@@ -106,47 +234,7 @@ def build_kb_from_zip(zip_path: str, out_path: Optional[str] = None, regenerate:
             brief = _extract_brief(raw)
 
             domain_id = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or title
-            # generate 3 simple MCQs per topic
-            questions = []
-            # Q1: concept identification
-            q1 = {
-                "id": f"{domain_id}-1",
-                "question": f"Which best describes '{title}'?",
-                "choices": [
-                    brief[:80],
-                    "A topic about number patterns and simple operations.",
-                    "A topic about English grammar and comprehension.",
-                    "A topic about computer programming basics.",
-                ],
-                "answer": 0,
-                "explanation": brief,
-            }
-            questions.append(q1)
-
-            # Q2: true/false style
-            q2 = {
-                "id": f"{domain_id}-2",
-                "question": f"True or False: {title} requires understanding of numeric computation or algebraic manipulation.",
-                "choices": ["True", "False", "Sometimes", "None of these"],
-                "answer": 0,
-                "explanation": "Most maths topics require numeric or algebraic thinking; review the topic notes.",
-            }
-            questions.append(q2)
-
-            # Q3: simple application prompt
-            q3 = {
-                "id": f"{domain_id}-3",
-                "question": f"Which skill is most related to {title}?",
-                "choices": [
-                    "Problem solving & practice",
-                    "Poetry recitation",
-                    "Map reading",
-                    "Cooking recipes",
-                ],
-                "answer": 0,
-                "explanation": "Mathematics topics connect to problem solving and numeric practice.",
-            }
-            questions.append(q3)
+            questions = _make_numerical_topic_questions(title, brief, level, seed=sum(ord(ch) for ch in f"{title}{brief}"))
 
             content[level]["domains"][domain_id] = {
                 "title": title,
@@ -274,7 +362,7 @@ def sample_diagnostic(level: str, num_questions: int = 30, kb: Optional[Dict] = 
     if not items:
         return []
 
-    random.shuffle(items)
+    items = _prioritize_questions(items)
     return items[:min(num_questions, len(items))]
 
 
@@ -386,7 +474,7 @@ def get_domain_practice(domain_id: str, kb: Optional[Dict] = None, top_n: int = 
     for lk in bank:
         dom = bank[lk].get("domains", {}).get(domain_id)
         if dom:
-            qs = dom.get("questions", [])
+            qs = _prioritize_questions(dom.get("questions", []))
             return qs[:top_n]
     # Then try canonical composite id 'Top::Sub' or either side
     for lk in bank:
@@ -394,7 +482,7 @@ def get_domain_practice(domain_id: str, kb: Optional[Dict] = None, top_n: int = 
             for sub, sub_node in top_node.items():
                 cid = f"{top}::{sub}"
                 if domain_id == cid or domain_id == sub or domain_id == top:
-                    qs = sub_node.get("questions", [])
+                    qs = _prioritize_questions(sub_node.get("questions", []))
                     return qs[:top_n]
     return []
 
@@ -729,4 +817,5 @@ def get_practice_by_canonical(level: str, top: str, sub: str, top_n: int = 10, k
     kb = kb or load_kb()
     bank = kb.get("mcq_bank", {})
     level_node = bank.get(level, {})
-    return level_node.get("canonical_domains", {}).get(top, {}).get(sub, {}).get("questions", [])[:top_n]
+    qs = level_node.get("canonical_domains", {}).get(top, {}).get(sub, {}).get("questions", [])
+    return _prioritize_questions(qs)[:top_n]
