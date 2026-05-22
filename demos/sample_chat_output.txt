@@ -1,0 +1,6 @@
+{
+  "timestamp": "2026-05-21T13:36:36.285652",
+  "provider": "Mock",
+  "user": "I am a Class 11 student interested in computer programming and maths. I want guidance on choosing streams, early preparation, and long-term career paths. Give a short study plan and top 3 college suggestions in India, and suggest entrance exams to consider.",
+  "assistant": "For stream selection after Class 10, compare your strongest subjects, preferred learning style, and long-term goals. Humanities suits students who enjoy writing, history, civics, or psychology; Commerce fits business, economics, and accountancy; Medical suits biology-heavy paths; Non-medical suits maths, physics, and engineering interest. Share your marks and interests for a sharper recommendation."
+}

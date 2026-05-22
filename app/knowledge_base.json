@@ -1,0 +1,424 @@
+{
+  "boards": [
+    {
+      "id": "cbse",
+      "name": "CBSE",
+      "type": "National Board",
+      "overview": "Widely followed across India for school education and board examinations in Classes 10 and 12.",
+      "classes": ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"],
+      "core_focus": ["NCERT textbooks", "concept-based learning", "board exam preparation", "science and mathematics foundation"],
+      "common_streams": ["Science", "Commerce", "Humanities"]
+    },
+    {
+      "id": "icse",
+      "name": "ICSE",
+      "type": "National Board",
+      "overview": "Known for a detailed syllabus, strong English language focus, and balanced academics.",
+      "classes": ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"],
+      "core_focus": ["English proficiency", "project work", "analytical learning", "broad subject coverage"],
+      "common_streams": ["Science", "Commerce", "Humanities"]
+    },
+    {
+      "id": "state_board",
+      "name": "State Board",
+      "type": "State Board",
+      "overview": "Each state follows its own syllabus, language policy, and examination structure.",
+      "classes": ["Primary", "Upper Primary", "Secondary", "Higher Secondary"],
+      "core_focus": ["local language", "state syllabus", "regional context", "board-specific textbooks"],
+      "common_streams": ["Science", "Commerce", "Arts"]
+    },
+    {
+      "id": "regional_state_board",
+      "name": "Regional State Board",
+      "type": "State Board",
+      "overview": "State-board students should follow the official syllabus, local assessment rules, and exam schedule issued by their board.",
+      "classes": ["Primary", "Middle", "Secondary", "Senior Secondary"],
+      "core_focus": ["state syllabus", "board exam preparation", "textbook-based learning", "local language support"],
+      "common_streams": ["Science", "Commerce", "Arts"]
+    }
+  ],
+  "policies": [
+    {
+      "id": "attendance",
+      "title": "Attendance Requirement",
+      "summary": "Many Indian schools require around 75% attendance for board exam eligibility.",
+      "details": "Students should keep medical documents and school approvals ready when attendance falls below the threshold. Always check the school handbook for board-specific rules."
+    },
+    {
+      "id": "grading",
+      "title": "Assessment Pattern",
+      "summary": "Marks typically come from periodic tests, term exams, practicals, and final board preparation.",
+      "details": "CBSE schools often use competency-based questions and internal assessment. ICSE schools include project work and written exams. State boards may vary by state and class."
+    },
+    {
+      "id": "promotion",
+      "title": "Promotion and Re-examination",
+      "summary": "Promotion rules depend on the school board, class level, and internal assessment performance.",
+      "details": "Students should follow school circulars for supplementary exams, re-evaluation, and subject improvement options."
+    },
+    {
+      "id": "academic_integrity",
+      "title": "Academic Integrity",
+      "summary": "Copying in schoolwork, projects, or board exams can lead to disciplinary action.",
+      "details": "Students should submit original work, cite sources in projects, and follow exam hall rules carefully."
+    }
+  ],
+  "courses": [
+    {
+      "code": "CBSE-10-MATH",
+      "name": "Class 10 Mathematics Foundation",
+      "tags": ["cbse", "math", "class 10", "board exam"],
+      "description": "Algebra, geometry, trigonometry basics, statistics, and real-life problem solving for board-prep revision.",
+      "prerequisites": []
+    },
+    {
+      "code": "CBSE-12-PHYS",
+      "name": "Class 12 Physics Foundation",
+      "tags": ["cbse", "science", "class 12", "board exam"],
+      "description": "Mechanics, electricity, optics, modern physics, and practical-based revision for board exams.",
+      "prerequisites": ["CBSE-10-MATH"]
+    },
+    {
+      "code": "ICSE-10-ENG",
+      "name": "Class 10 English and Writing Foundation",
+      "tags": ["icse", "english", "class 10", "writing"],
+      "description": "Grammar, literature, writing skills, comprehension, and language development for board-prep revision.",
+      "prerequisites": []
+    },
+    {
+      "code": "STATE-BOARD-SCI",
+      "name": "State Board Science Foundation",
+      "tags": ["state board", "science", "class 9", "class 10"],
+      "description": "Foundational science topics aligned to state board textbooks and exam preparation.",
+      "prerequisites": []
+    }
+  ]
+  ,
+  "programs": [
+    {
+      "id": "diploma-computer-engineering",
+      "level": "Diploma",
+      "field": "Computer Engineering",
+      "title": "Diploma in Computer Engineering",
+      "best_for": "students who want a hands-on technical route after Class 10 or Class 12",
+      "entry_after": ["Class 10", "Class 12"],
+      "keywords": ["computer", "coding", "hardware", "polytechnic", "diploma"],
+      "institutions": [
+        "DSEU Polytechnic campuses, Delhi",
+        "Government Polytechnic, Mumbai",
+        "Government Polytechnic, Chandigarh",
+        "Pusa Polytechnic, Delhi"
+      ],
+      "note": "Check the current admission brochure and intake seats for the latest academic year."
+    },
+    {
+      "id": "diploma-pharmacy",
+      "level": "Diploma",
+      "field": "Pharmacy",
+      "title": "Diploma in Pharmacy (D.Pharm)",
+      "best_for": "students interested in health sciences, laboratories, and pharmacy careers",
+      "entry_after": ["Class 12"],
+      "keywords": ["pharmacy", "health", "medicine", "biology", "diploma"],
+      "institutions": [
+        "Jamia Hamdard, New Delhi",
+        "Bhagwant University, Rajasthan",
+        "Government pharmacy colleges in multiple states",
+        "JSS College of Pharmacy, Ooty"
+      ],
+      "note": "Admission rules vary by institution; verify PCI approval and seat availability before applying."
+    },
+    {
+      "id": "ug-bsc-computer-science",
+      "level": "Undergraduate",
+      "field": "B.Sc. Computer Science",
+      "title": "B.Sc. in Computer Science / Data Science",
+      "best_for": "students who want a science-based undergraduate route into software, analytics, or postgraduate study",
+      "entry_after": ["Class 12"],
+      "keywords": ["computer", "coding", "data", "science", "ug", "undergraduate"],
+      "institutions": [
+        "University of Delhi colleges such as Hansraj College and Kirori Mal College",
+        "Christ University, Bengaluru",
+        "Loyola College, Chennai",
+        "St. Xavier's College, Mumbai"
+      ],
+      "note": "Course titles and eligibility differ by college; confirm whether the college offers a B.Sc. or BCA track." 
+    },
+    {
+      "id": "ug-bcom-hons",
+      "level": "Undergraduate",
+      "field": "Commerce",
+      "title": "B.Com. / B.Com. (Hons.)",
+      "best_for": "students interested in accounting, business, banking, finance, and professional courses",
+      "entry_after": ["Class 12"],
+      "keywords": ["commerce", "accounting", "finance", "business", "ug"],
+      "institutions": [
+        "Shri Ram College of Commerce, Delhi University",
+        "Hansraj College, Delhi University",
+        "Christ University, Bengaluru",
+        "St. Xavier's College, Kolkata"
+      ],
+      "note": "Many colleges require Class 12 mathematics or strong commerce subjects for honours programs."
+    },
+    {
+      "id": "ug-ba-psychology",
+      "level": "Undergraduate",
+      "field": "Psychology / Humanities",
+      "title": "B.A. in Psychology / Humanities",
+      "best_for": "students who enjoy writing, social sciences, public policy, or psychology",
+      "entry_after": ["Class 12"],
+      "keywords": ["humanities", "arts", "psychology", "history", "political science", "ug"],
+      "institutions": [
+        "Lady Shri Ram College for Women, Delhi",
+        "Miranda House, Delhi University",
+        "Ashoka University, Haryana",
+        "Symbiosis College of Arts and Commerce, Pune"
+      ],
+      "note": "Admission may depend on merit, entrance tests, or both depending on the institution."
+    },
+    {
+      "id": "pg-mba",
+      "level": "Postgraduate",
+      "field": "Management",
+      "title": "MBA / PGDM",
+      "best_for": "graduates who want careers in management, consulting, operations, marketing, or entrepreneurship",
+      "entry_after": ["UG completion"],
+      "keywords": ["management", "business", "pg", "postgraduate", "mba", "pgdm"],
+      "institutions": [
+        "Indian Institutes of Management (IIMs)",
+        "FMS, University of Delhi",
+        "XLRI Jamshedpur",
+        "SPJIMR Mumbai"
+      ],
+      "note": "Admission usually depends on entrance tests, work-experience preferences, and interview rounds."
+    },
+    {
+      "id": "pg-msc-data-science",
+      "level": "Postgraduate",
+      "field": "Data Science / Computer Science",
+      "title": "M.Sc. in Data Science / Computer Science",
+      "best_for": "graduates aiming for analytics, research, software engineering, or higher study",
+      "entry_after": ["UG completion"],
+      "keywords": ["data", "computer", "science", "analytics", "pg", "postgraduate"],
+      "institutions": [
+        "Indian Statistical Institute, Kolkata",
+        "University of Hyderabad",
+        "University of Delhi departments",
+        "BITS Pilani"
+      ],
+      "note": "Check program specialization, entrance requirements, and department intake for the current cycle."
+    }
+  ]
+  ,
+  "pathways": [
+    {
+      "field": "Engineering / Computer Science",
+      "aliases": ["engineering", "computer science", "coding", "it", "software", "non-medical"],
+      "class_11": {
+        "decision": "For engineering, choose Science - Non-medical in Class 11 rather than medical, commerce, or humanities.",
+        "streams": ["Science - Non-medical"],
+        "subjects": ["Mathematics", "Physics", "Chemistry", "English"],
+        "focus": "Build strong math and physics fundamentals, keep chemistry steady, and start coding/problem-solving practice early."
+      },
+      "class_12": {
+        "what_to_do": [
+          "Target Class 12 board score consistency in Maths, Physics, and Chemistry.",
+          "Prepare for JEE, state CETs, or institution-level entrances where relevant.",
+          "Create a project portfolio with coding, robotics, or lab work examples."
+        ],
+        "entrance_exams": ["JEE Main", "JEE Advanced", "BITSAT", "State CETs"],
+        "specialization_tracks": ["Computer Science Engineering", "Electronics & Communication Engineering", "Mechanical Engineering", "Civil Engineering", "Electrical Engineering", "Chemical Engineering", "Aerospace Engineering", "Biomedical Engineering"],
+        "diploma_route": {
+          "available_after": "Class 10 or Class 12",
+          "examples": ["Diploma in Computer Engineering", "Diploma in Electronics Engineering"],
+          "institutions": ["DSEU Polytechnic campuses, Delhi", "Government Polytechnic, Mumbai", "Pusa Polytechnic, Delhi"]
+        },
+        "undergraduate_routes": ["B.Tech / B.E.", "B.Sc. Computer Science", "BCA"],
+        "undergraduate_institutions": ["IITs", "NITs", "IIITs", "University of Delhi colleges", "BITS Pilani", "Christ University, Bengaluru"],
+        "postgraduate_routes": ["M.Tech / M.E.", "M.Sc. Computer Science", "MBA after engineering"],
+        "postgraduate_institutions": ["IITs", "NITs", "Indian Statistical Institute, Kolkata", "IIMs", "FMS, University of Delhi"],
+        "top_institutions_by_city": {
+          "ludhiana": {
+            "diploma": ["Government Polytechnic, Ludhiana", "Punjab Polytechnic, Jalandhar (near Ludhiana)", "Baba Banda Singh Bahadur Engineering College, Fatehgarh Sahib (near Ludhiana)"],
+            "undergraduate": ["Lovely Professional University, Phagwara (near Ludhiana)", "Punjab Engineering College, Chandigarh (near Ludhiana)", "Baba Banda Singh Bahadur Engineering College, Fatehgarh Sahib"],
+            "postgraduate": ["Lovely Professional University, Phagwara", "Punjab Engineering College, Chandigarh", "Thapar Institute of Engineering and Technology, Patiala"]
+          }
+        },
+        "avg_fees": {
+          "diploma": "₹40,000 - ₹70,000 per year",
+          "undergraduate": "₹1,50,000 - ₹4,00,000 per year for private colleges; ₹80,000 - ₹2,00,000 for good state/university colleges",
+          "postgraduate": "₹1,50,000 - ₹4,00,000 per year depending on institute and specialization"
+        },
+        "salary_overview": "Engineering careers in 2026-27 typically begin at ₹30,000 - ₹60,000 per month for fresh graduates, with strong growth into ₹1,00,000 - ₹1,50,000+ for experienced engineers and ₹2,00,000+ for top roles.",
+        "career_outlook": [
+          {"role": "Software Engineer / Developer", "salary": "₹35,000 - ₹75,000 per month starting"},
+          {"role": "Core Engineer (Mechanical / Civil / Electrical)", "salary": "₹30,000 - ₹65,000 per month starting"},
+          {"role": "Data Scientist / AI Engineer", "salary": "₹40,000 - ₹85,000 per month starting"},
+          {"role": "Product Manager / Tech Lead", "salary": "₹80,000 - ₹2,00,000 per month with experience"}
+        ]
+      },
+      "career_direction": ["software engineering", "data science", "core engineering", "cybersecurity", "product management"]
+    },
+    {
+      "field": "Medical / Life Sciences",
+      "aliases": ["medical", "biology", "neet", "health", "life sciences", "doctor"],
+      "class_11": {
+        "decision": "For medical pathways, choose Science - Medical in Class 11; avoid non-medical, commerce, or humanities if MBBS/BDS is your goal.",
+        "streams": ["Science - Medical"],
+        "subjects": ["Biology", "Physics", "Chemistry", "English"],
+        "focus": "Keep biology as the main anchor, strengthen chemistry, and maintain disciplined practical and theory revision."
+      },
+      "class_12": {
+        "what_to_do": [
+          "Study NCERT line by line for Biology, Chemistry, and Physics.",
+          "Plan NEET-style practice, diagram work, and timed revision.",
+          "Shortlist medical, allied health, or research pathways early."
+        ],
+        "entrance_exams": ["NEET-UG", "AIIMS-style medical entrances", "state-level health entrance exams"],
+        "specialization_tracks": ["MBBS", "BDS", "BAMS", "BHMS", "B.Pharm", "B.Sc. Nursing"],
+        "diploma_route": {
+          "available_after": "Class 12",
+          "examples": ["Diploma in Pharmacy (D.Pharm)", "Diploma in Medical Lab Technology"],
+          "institutions": ["Jamia Hamdard, New Delhi", "JSS College of Pharmacy, Ooty", "Government medical institutes in multiple states"]
+        },
+        "undergraduate_routes": ["MBBS", "BDS", "BAMS", "BHMS", "B.Sc. Nursing", "B.Pharm"],
+        "undergraduate_institutions": ["AIIMS", "JIPMER", "Government medical colleges", "Jamia Hamdard, New Delhi", "selected private deemed universities"],
+        "postgraduate_routes": ["MD / MS", "M.Pharm", "M.Sc. Biomedical Sciences", "MPH"],
+        "postgraduate_institutions": ["AIIMS", "PGIMER", "JIPMER", "NIPER"],
+        "top_institutions_by_city": {
+          "ludhiana": {
+            "diploma": ["Dayanand Medical College & Hospital, Ludhiana (DPT, BPT allied health)", "Government Medical College, Patiala (near Ludhiana)", "Christian Medical College, Ludhiana campus"],
+            "undergraduate": ["Dayanand Medical College & Hospital, Ludhiana", "Government Medical College, Patiala", "Sri Guru Ram Das Institute of Medical Sciences & Research, Amritsar"],
+            "postgraduate": ["Dayanand Medical College & Hospital, Ludhiana", "Government Medical College, Patiala", "PGIMER, Chandigarh"]
+          }
+        },
+        "avg_fees": {
+          "diploma": "₹60,000 - ₹1,50,000 per year",
+          "undergraduate": "₹2,00,000 - ₹7,00,000 per year for private medical colleges; ₹50,000 - ₹3,00,000 for government institutions",
+          "postgraduate": "₹3,00,000 - ₹12,00,000 per year depending on specialization and institute"
+        },
+        "salary_overview": "Medical and allied health careers in 2026-27 typically start at ₹40,000 - ₹90,000 per month for fresh graduates, with specialist doctors and consultants earning ₹1,50,000+ per month.",
+        "career_outlook": [
+          {"role": "Doctor (MBBS)", "salary": "₹60,000 - ₹1,20,000 per month starting"},
+          {"role": "Dentist (BDS)", "salary": "₹45,000 - ₹90,000 per month starting"},
+          {"role": "Clinical Research / Public Health", "salary": "₹35,000 - ₹70,000 per month starting"},
+          {"role": "Pharmacist / Medical Lab Scientist", "salary": "₹35,000 - ₹75,000 per month starting"}
+        ]
+      },
+      "career_direction": ["medicine", "dentistry", "pharmacy", "nursing", "medical research", "public health"]
+    },
+    {
+      "field": "Commerce / Management",
+      "aliases": ["commerce", "business", "finance", "accounting", "economics", "management"],
+      "class_11": {
+        "decision": "For commerce and management, choose Commerce in Class 11 with Accountancy, Business Studies, Economics, and optional Mathematics if possible.",
+        "streams": ["Commerce"],
+        "subjects": ["Accountancy", "Business Studies", "Economics", "Mathematics if available"],
+        "focus": "Build basics in accounts, business concepts, and economics; keep communication and spreadsheet skills strong."
+      },
+      "class_12": {
+        "what_to_do": [
+          "Prepare for board exams with strong numeracy and concept clarity.",
+          "Explore CUET, CA Foundation, CS Foundation, or B.Com-related admission routes.",
+          "Develop practical skills in MS Excel, presentation, and basic analytics."
+        ],
+        "entrance_exams": ["CUET-UG", "CA Foundation", "CS Executive Entrance", "BBA entrance tests"],
+        "specialization_tracks": ["Accounting", "Finance", "Business Analytics", "Marketing", "Human Resources", "Economics"],
+        "diploma_route": {
+          "available_after": "Class 10 or Class 12",
+          "examples": ["Diploma in Banking and Finance", "Diploma in Retail Management"],
+          "institutions": ["Polytechnic and vocational institutes across states", "DSEU", "selected private skill universities"]
+        },
+        "undergraduate_routes": ["B.Com.", "B.Com. (Hons.)", "BBA", "BMS", "BA Economics"],
+        "undergraduate_institutions": ["SRCC", "Hansraj College", "Lady Shri Ram College", "Christ University, Bengaluru", "St. Xavier's College, Kolkata"],
+        "postgraduate_routes": ["MBA / PGDM", "M.Com.", "M.A. Economics", "MBA in Finance"],
+        "postgraduate_institutions": ["IIMs", "FMS, University of Delhi", "XLRI Jamshedpur", "SPJIMR Mumbai"],
+        "top_institutions_by_city": {
+          "ludhiana": {
+            "diploma": ["Government Polytechnic, Ludhiana", "Punjabi University Regional Centre*, Ludhiana"],
+            "undergraduate": ["Lovely Professional University, Phagwara (near Ludhiana)", "Chandigarh University (near Ludhiana)", "Punjab University regional colleges"],
+            "postgraduate": ["Lovely Professional University, Phagwara", "Chandigarh University", "Punjab University, Chandigarh"]
+          }
+        },
+        "avg_fees": {
+          "diploma": "₹30,000 - ₹80,000 per year",
+          "undergraduate": "₹1,00,000 - ₹3,50,000 per year for private colleges; ₹60,000 - ₹1,50,000 for strong public colleges",
+          "postgraduate": "₹1,50,000 - ₹6,00,000 per year depending on program and institute"
+        },
+        "salary_overview": "Commerce and management careers in 2026-27 generally start at ₹30,000 - ₹55,000 per month, with strong performers in finance/consulting reaching ₹80,000+ early on.",
+        "career_outlook": [
+          {"role": "Accountant / Auditor", "salary": "₹28,000 - ₹50,000 per month starting"},
+          {"role": "Financial Analyst / Investment Analyst", "salary": "₹35,000 - ₹65,000 per month starting"},
+          {"role": "Management Trainee / Business Analyst", "salary": "₹30,000 - ₹60,000 per month starting"},
+          {"role": "Consulting / Corporate Finance", "salary": "₹60,000 - ₹1,20,000 per month with experience"}
+        ]
+      },
+      "career_direction": ["accounting", "banking", "finance", "business analytics", "management", "entrepreneurship"]
+    },
+    {
+      "field": "Humanities / Psychology / Public Policy",
+      "aliases": ["humanities", "arts", "psychology", "history", "political science", "public policy", "sociology"],
+      "class_11": {
+        "decision": "For Humanities, choose Humanities in Class 11 and avoid Science or Commerce if you want strong psychology/public policy options.",
+        "streams": ["Humanities"],
+        "subjects": ["History", "Political Science", "Sociology", "Psychology", "English"],
+        "focus": "Strengthen writing, reading, analysis, and subject reasoning while exploring the careers that need communication and social understanding."
+      },
+      "class_12": {
+        "what_to_do": [
+          "Keep essays, case studies, and answer writing crisp and well structured.",
+          "Use CUET or university-specific entrances where required.",
+          "Build reading, debate, and research habits to support university applications."
+        ],
+        "entrance_exams": ["CUET-UG", "university entrance tests", "SAT/other international tests where relevant"],
+        "specialization_tracks": ["Psychology", "Public Policy", "Sociology", "Law", "Journalism", "Social Work"],
+        "diploma_route": {
+          "available_after": "Class 12",
+          "examples": ["Diploma in Journalism", "Diploma in Counselling / Social Work"],
+          "institutions": ["vocational colleges", "media institutes", "selected universities and private institutes"]
+        },
+        "undergraduate_routes": ["B.A. (Hons.) Psychology", "B.A. Political Science", "B.A. Sociology", "B.A. Economics", "B.A. English"],
+        "undergraduate_institutions": ["Lady Shri Ram College", "Miranda House", "Ashoka University", "St. Xavier's College, Mumbai", "Symbiosis colleges"],
+        "postgraduate_routes": ["M.A. Psychology", "M.A. Public Policy", "M.A. International Relations", "MBA for policy/management roles"],
+        "postgraduate_institutions": ["University of Delhi departments", "TISS", "Ashoka University", "JNU", "IIMs for management transitions"],
+        "top_institutions_by_city": {
+          "ludhiana": {
+            "diploma": ["Lovely Professional University, Phagwara (humantities diplomas)", "Chandigarh University (arts/social science programs)", "DAV College, Jalandhar (near Ludhiana)"],
+            "undergraduate": ["Lovely Professional University, Phagwara", "Chandigarh University", "Punjab University regional colleges"],
+            "postgraduate": ["Lovely Professional University, Phagwara", "Chandigarh University", "Panjab University, Chandigarh"]
+          }
+        },
+        "avg_fees": {
+          "diploma": "₹25,000 - ₹70,000 per year",
+          "undergraduate": "₹80,000 - ₹2,50,000 per year for private colleges; ₹40,000 - ₹1,00,000 for strong public colleges",
+          "postgraduate": "₹70,000 - ₹2,50,000 per year depending on program and institute"
+        },
+        "salary_overview": "Humanities careers in 2026-27 generally start at ₹25,000 - ₹50,000 per month for entry-level roles, rising to ₹60,000 - ₹1,20,000+ in policy, research, media, or analytics jobs.",
+        "career_outlook": [
+          {"role": "Research Analyst / Policy Analyst", "salary": "₹35,000 - ₹70,000 per month starting"},
+          {"role": "Journalist / Content Strategist", "salary": "₹25,000 - ₹50,000 per month starting"},
+          {"role": "Civil Services / Public Policy", "salary": "₹50,000 - ₹1,10,000 per month with experience"},
+          {"role": "Clinical Psychologist / Counsellor", "salary": "₹30,000 - ₹60,000 per month starting"}
+        ]
+      },
+      "career_direction": ["psychology", "law", "public policy", "journalism", "civil services", "research", "social work"]
+    }
+  ],
+  "regional_resources": [
+    {
+      "label": "Metro city study plan",
+      "tips": "Use the stronger coaching ecosystem for regular testing, concept revision, and timed sample papers. Keep a disciplined weekly schedule and track weak chapters."
+    },
+    {
+      "label": "Tier-2 city study plan",
+      "tips": "Balance school, self-study, and travel time carefully. Focus on board syllabus completion early, then use weekends for revision and doubt clearing."
+    },
+    {
+      "label": "Small town study plan",
+      "tips": "Rely on textbook mastery, online classes, and peer study groups. Keep notes simple, revise often, and practise sample papers under timed conditions."
+    },
+    {
+      "label": "School support plan",
+      "tips": "Build regular contact with teachers, ask for extra practice material early, and keep attendance and homework records organised for board preparation."
+    }
+  ]
+}

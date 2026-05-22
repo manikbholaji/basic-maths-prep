@@ -1,0 +1,15 @@
+streamlit>=1.18
+openai
+python-dotenv
+pandas
+vaderSentiment
+plotly
+google-auth
+requests
+Pillow
+reportlab
+playwright
+python-docx
+PyPDF2
+pytesseract
+pdf2image

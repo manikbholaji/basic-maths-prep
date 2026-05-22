@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run tests
+        run: |
+          pytest -q
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 0 * * *'  # daily at 00:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest
+
+      - name: Run tests
+        run: pytest -q
+
+  health-check:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run provider health checks
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          DIALOGFLOW_PROJECT_ID: ${{ secrets.DIALOGFLOW_PROJECT_ID }}
+          DIALOGFLOW_ACCESS_TOKEN: ${{ secrets.DIALOGFLOW_ACCESS_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scripts/run_health_checks.py
+
+      - name: Read health results
+        id: read_results
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          results = json.loads(Path('health_results.json').read_text(encoding='utf-8'))
+          failing = {name: info for name, info in results.items() if not info.get('ok', False)}
+          out = Path(os.environ['GITHUB_OUTPUT'])
+          out.write_text(
+              f"results={json.dumps(results)}\n"
+              f"has_failures={'true' if failing else 'false'}\n"
+              f"failing={json.dumps(failing)}\n",
+              encoding='utf-8'
+          )
+          print(json.dumps(results, indent=2))
+          PY
+
+      - name: Create issue for failing providers
+        if: steps.read_results.outputs.has_failures == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const results = JSON.parse(process.env.RESULTS || '{}');
+            const failing = Object.entries(results).filter(([, v]) => v && v.ok === false);
+            if (failing.length === 0) {
+              console.log('All providers healthy');
+              return;
+            }
+            const bodyLines = ['The scheduled provider health check detected failures:',''];
+            for (const [name, info] of failing) {
+              bodyLines.push(`- **${name}**: ${JSON.stringify(info)}`);
+            }
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Health check failures: ${failing.map(f=>f[0]).join(', ')}`,
+              body: bodyLines.join('\n')
+            });
+            console.log('Created issue', issue.data.html_url);
+        env:
+          RESULTS: ${{ steps.read_results.outputs.results }}

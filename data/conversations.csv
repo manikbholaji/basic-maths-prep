@@ -1,0 +1,203 @@
+timestamp,user,role,message,sentiment,compound
+2026-05-20T12:28:00.503741Z,anonymous,user,how to prepare for class 10 board exams ?,neutral,0.0
+2026-05-20T12:28:00.503741Z,anonymous,assistant,"[OpenAI error] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}} | fallback failed: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+",,0.0
+2026-05-20T12:39:51.919477Z,anonymous,user,Class 10 maths,neutral,0.0
+2026-05-20T12:39:51.922475Z,anonymous,assistant,"[Mock reply] I heard: 'class 10 maths'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-20T12:44:01.622342Z,anonymous,user,Class 10 maths,neutral,0.0
+2026-05-20T12:44:01.622342Z,anonymous,assistant,"[Google API error] 404: {'error': {'code': 404, 'message': 'Requested entity was not found.', 'status': 'NOT_FOUND'}} | Falling back to mock reply:
+[Mock reply] I heard: 'class 10 maths'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-20T12:45:37.481808Z,anonymous,user,Class 10 maths,neutral,0.0
+2026-05-20T12:45:37.481808Z,anonymous,assistant,"[Google API error] 404: {'error': {'code': 404, 'message': 'models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}} | Falling back to mock reply:
+[Mock reply] I heard: 'class 10 maths'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-20T12:48:17.964197Z,anonymous,user,Class 10 maths,neutral,0.0
+2026-05-20T12:48:17.964554Z,anonymous,assistant,"[Google API error] 503: {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}} | Falling back to mock reply:
+[Mock reply] I heard: 'class 10 maths'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-20T12:50:21.800531Z,anonymous,user,Class 10 maths,neutral,0.0
+2026-05-20T12:50:21.800531Z,anonymous,assistant,Class 10 Maths is a crucial year as it lays the foundation for higher studies in science and commerce,,0.0
+2026-05-20T12:50:57.130906Z,anonymous,user,Tell me how to prepare for class 10 maths board exam.,neutral,0.0
+2026-05-20T12:50:57.130906Z,anonymous,assistant,"[Google API error] 400: {'error': {'code': 400, 'message': 'The requested combination of response modalities (TEXT) is not supported by the model. models/gemini-2.5-flash-preview-tts accepts the following combination of response modalities:\n* AUDIO\n', 'status': 'INVALID_ARGUMENT'}} | Falling back to mock reply:
+[Mock reply] I heard: 'tell me how to prepare for class 10 maths board exam.'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-20T12:52:30.281545Z,anonymous,user,Tell me how to prepare for class 10 maths board exam.,neutral,0.0
+2026-05-20T12:52:30.281545Z,anonymous,assistant,Preparing for the Class 10 Maths Board Exam requires a strategic and consistent approach. It,,0.0
+2026-05-20T12:52:59.886934Z,anonymous,user,tell me proper steps about it,neutral,0.0
+2026-05-20T12:52:59.886934Z,anonymous,assistant,"To give you ""proper steps,"" I need to know what ""it"" refers to!",,0.0
+2026-05-20T12:55:05.279790Z,anonymous,user,Tell me how to prepare for class 10 maths board exam.,neutral,0.0
+2026-05-20T12:55:05.279790Z,anonymous,assistant,"That's a fantastic question! Preparing for the Class 10 Maths Board Exam requires a strategic approach, consistent effort, and smart practice. Here's a comprehensive guide to help you ace it:
+
+### Phase 1: Understanding the Foundation (Early Preparation)
+
+1.  **Master the NCERT Textbook:**
+    *   **Your Bible:** The NCERT textbook is the most crucial resource. Board exams are heavily based on its concepts, examples, and exercise questions.
+    *   **Understand Concepts:** Don't just memorize formulas. Understand *why* a formula works and *how* a",,0.0
+2026-05-20T12:58:47.428501Z,anonymous,user,Tell me how to prepare for class 10 maths board exam.,neutral,0.0
+2026-05-20T12:58:47.428501Z,anonymous,assistant,"[Google API error] 500: {'error': {'code': 500, 'message': 'Internal error encountered.', 'status': 'INTERNAL'}} | Falling back to mock reply:
+[Mock reply] I heard: 'tell me how to prepare for class 10 maths board exam.'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-20T13:00:42.845290Z,anonymous,user,Tell me how to prepare for class 10 maths board exam.,neutral,0.0
+2026-05-20T13:00:42.845726Z,anonymous,assistant,"Preparing for your Class 10 Mathematics Board Exam can feel overwhelming, but with a structured plan and consistent practice, you can easily score a 90+ or even a perfect 100. 
+
+As your academic advisor, I have broken down the ultimate preparation strategy into actionable steps:
+
+---
+
+### 1. Know Your Syllabus and Chapter Weightage
+Before you start solving problems, you need to know the blueprint of your exam. For most boards (like CBSE), the syllabus is divided into units with specific weightage. 
+*   **High-Weightage Units:** **Algebra** (Polynomials, Quadratic Equations, AP) and **Geometry** (Triangles, Circles) usually carry the maximum marks.
+*   **High-Scoring Units:** **Trigonometry**, **Statistics & Probability**, and **Coordinate Geometry** are relatively easier to master and highly scoring.
+*   *Action:* Print out the official syllabus and mark off topics as you complete them.
+
+### 2. Master the NCERT Textbook (Your Holy Grail)
+Almost 80–90% of the board exam paper is directly or indirectly based on the NCERT textbook.
+*   **Solve every single question:** Do not skip the solved examples, exercise questions, or the ""Optional"" exercises (they often contain high-order thinking questions).
+*   **NCERT Exemplar:** Once you finish a chapter from the textbook, solve the NCERT Exemplar problems for that chapter to practice trickier, conceptual questions.
+
+### 3. Create a ""Formula and Theorem Book""
+Math requires remembering many formulas, identities, and theorems. 
+*   Maintain a separate thin notebook just for formulas, properties, and theorems (like the Pythagoras theorem, Basic Proportionality Theorem, trigonometric identities, and surface area formulas).
+*   *Advisor Tip:* Read through this notebook for 10 minutes every single morning. By exam day, these formulas will be hardwired into your brain.
+
+### 4. Focus on Step-Marking and Presentation
+In board exams, you get marks for every step, even if your final answer is incorrect.
+*   **Write down ""Given"" and ""To Find/Prove""** at the start of every subjective question.
+*   **Draw neat diagrams** using a pencil and ruler for Geometry, Trigonometry, and Mensuration questions.
+*   **Highlight the final answer** by putting it in a box and writing the correct units (e.g., $cm^2$, $m/s$).
+
+### 5. Solve Previous Years’ Questions (PYQs) and Sample Papers
+This is the secret weapon of toppers.
+*   **Solve the last 5 to 10 years of board papers.** You will notice that certain types of questions are repeated almost every year.
+*   **Take timed mock tests:** Sit in a quiet room, set a timer for 3 hours, and solve a sample paper without any distractions. This will help you manage your time during the actual exam.
+
+### 6. Identify and Work on Your Weaknesses
+*   Keep a ""Mistakes Log."" Whenever you make a silly calculation error or get stuck on a concept, write it down in a notebook. 
+*   Redo those exact questions after a few days to ensure you have actually understood the concept.
+
+---
+
+### Suggested Study Timeline:
+
+*   **Phase 1 (Concept Building):** Focus on understanding concepts, solving NCERT, and making formula notes.
+*   **Phase 2 (Practice & Revision):** Solve NCERT Exemplar and chapter-wise PYQs.
+*   **Phase 3 (The Final Month):** Solve at least 10-15 full-length sample papers under exam conditions and revise your formula book daily.
+
+**Remember:** Mathematics is not a reading subject. You cannot prepare for it by just looking at the solutions. You must pick up a pen and solve the problems yourself.
+
+*What chapter are you currently studying, or which topic do you find the most difficult? I can help you break it down or create a personalized study schedule!*",,0.0
+2026-05-20T13:05:20.666274Z,anonymous,user,Tell me how to prepare for class 10 maths board exam.,neutral,0.0
+2026-05-20T13:05:20.666274Z,anonymous,assistant,"Hello! As your academic advisor, I am delighted to help you map out a winning strategy for your Class 10 Mathematics Board Exam. 
+
+Maths is a subject where you can easily score a perfect 100/100 if you approach it with the right strategy, consistent practice, and a calm mind. Here is a step-by-step preparation guide to help you ace your exam:
+
+---
+
+### 1. Master the ""Holy Grail"": NCERT
+For board exams (especially CBSE), the **NCERT textbook is your absolute best friend**. 
+* **Solve every single question:** Do not skip any solved examples, in-text exercises, or miscellaneous exercises. Board exams often lift questions directly from NCERT.
+* **NCERT Exemplar:** Once you finish a chapter in NCERT, solve the NCERT Exemplar problems for that chapter. It helps build conceptual depth and prepares you for higher-order thinking (HOTS) questions.
+
+### 2. Know the Weightage & Prioritize Chapters
+Not all chapters carry the same weight. Prioritize your preparation based on the marks distribution (based on standard CBSE guidelines):
+* **Algebra (Polynomials, Pair of Linear Equations, Quadratic Equations, AP):** ~20 Marks (High weightage, relatively easy to score).
+* **Geometry (Triangles, Circles):** ~15 Marks (Requires understanding of theorems and rigorous practice).
+* **Trigonometry (Introduction & Applications):** ~12 Marks (Formula-heavy; practice identities thoroughly).
+* **Statistics & Probability:** ~11 Marks (Very scoring; focus on calculation accuracy).
+* **Coordinate Geometry:** ~6 Marks (Easy formulas, high scoring).
+* **Mensuration (Area Related to Circles, Surface Areas & Volumes):** ~10 Marks (Formula-based; requires neat calculations).
+
+### 3. Create a ""Formula Book""
+Maths is highly formula-driven. 
+* Take a thin notebook and write down all the formulas, theorems, identities, and properties chapter-wise.
+* **How to use it:** Review this formula book for 15 minutes every single morning. By exam day, you will remember them effortlessly.
+
+### 4. Solve Previous Years' Questions (PYQs) & Sample Papers
+This is the bridge between ""knowing"" the math and ""scoring"" in the exam.
+* **Solve at least the last 5–7 years of board papers.** This will help you identify repeating patterns and the types of questions examiners love to ask.
+* **Take timed mock tests:** Sit in a quiet room, set a timer for 3 hours, and solve a sample paper. This builds exam stamina and teaches you **time management** (e.g., how much time to spend on 1-mark MCQs vs. 5-mark long answers).
+
+### 5. Focus on Presentation and Step-Marking
+In board exams, **steps carry marks**. Even if your final calculation goes wrong, you can get 80% of the marks for a question if your steps and formulas are correct.
+* **Write down the ""Given"" and ""To Find/To Prove""** for geometry and trigonometry questions.
+* **State the formula** clearly before plugging in numbers.
+* **Draw neat diagrams** using a pencil and ruler (especially for Geometry, Mensuration, and Heights & Distances).
+* **Highlight your final answer** by putting it in a box.
+
+### 6. Avoid Common Pitfalls
+* **Silly Calculation Mistakes:** This is where students lose the most marks. Practice doing calculations by hand—**do not use a calculator** during your preparation.
+* **Skipping ""Easy"" Chapters:** Don't ignore Probability or Real Numbers thinking they are too easy. They are guaranteed marks; secure them first.
+* **Rote Learning:** Do not try to memorize the steps of a math problem. Understand *why* a particular step was taken.
+
+---
+
+### Your Weekly Action Plan:
+1. **Daily Practice:** Dedicate at least **1.5 to 2 hours daily** to Maths.
+2. **Weekly Revision:** Every Sunday, revise the chapters you studied during the week.
+3. **Doubt Clearance:** Never let a doubt linger. Ask your teacher, a friend, or use online resources to clear it immediately.
+
+**How is your preparation going so far?** Let me know which chapters you find the most challenging, and we can design a personalized study schedule for you!",,0.0
+2026-05-20T13:10:05.702746Z,anonymous,user,Hi,neutral,0.0
+2026-05-20T13:10:05.702746Z,anonymous,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+[Mock reply] I heard: 'hi'. Try asking about courses, schedules, or careers.",,0.0
+2026-05-21T17:32:22.975401Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-21T17:32:22.976903Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-21T17:34:19.116057Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-21T17:34:19.117963Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-21T17:35:04.796313Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-21T17:35:04.799115Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-21T17:35:59.481289Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-21T17:35:59.482292Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-21T17:38:26.175842Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-21T17:38:26.177237Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T01:14:26.327402Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T01:14:26.329145Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T01:20:44.911209Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T01:20:44.914845Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T01:21:54.465791Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T01:21:54.466850Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T01:36:26.772359Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T01:36:26.774141Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T01:37:45.389498Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T01:37:45.390553Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:12:48.214586Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:12:48.218123Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:14:39.848902Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:14:39.850355Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:18:04.846297Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:18:04.847947Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:20:26.150932Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:20:26.153335Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:22:16.332632Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:22:16.333641Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:26:09.937862Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:26:09.939257Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:31:08.341747Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:31:08.343175Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:32:09.681325Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:32:09.682792Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859
+2026-05-22T12:33:51.667004Z,Aanya,user,What should I revise next for maths?,neutral,0.0
+2026-05-22T12:33:51.668498Z,Aanya,assistant,"[OpenAI error] Quota exceeded. Please check your OpenAI billing/plan. Falling back to mock reply:
+For board exam prep, start with the official syllabus, split chapters into weekly targets, and revise textbook exercises first. If you tell me your class and board, I can make a sharper study plan.",negative,-0.5859

@@ -1,0 +1,36 @@
+name: Generate demo GIF
+
+on:
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Ensure demo video exists
+        run: |
+          ls -la demos || true
+          ls -la demos/videos || true
+
+      - name: Convert webm to gif
+        run: |
+          if [ -f demos/videos/admin_chat_demo.webm ]; then
+            ffmpeg -y -i demos/videos/admin_chat_demo.webm -vf "fps=10,scale=640:-1:flags=lanczos" demos/admin_demo.gif
+          else
+            echo "No demo webm found at demos/videos/admin_chat_demo.webm"
+            exit 1
+          fi
+
+      - name: Upload demo GIF
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-demo-gif
+          path: demos/admin_demo.gif

@@ -1,0 +1,34 @@
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+env/
+venv/
+.env
+*.pyc
+*.pyo
+*.pyd
+build/
+dist/
+*.egg-info/
+.DS_Store
+.vscode/
+.pytest_cache/
+.streamlit/
+/.venv
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+venv/
+
+# Streamlit secrets
+.streamlit/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
