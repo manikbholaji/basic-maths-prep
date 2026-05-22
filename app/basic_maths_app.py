@@ -345,6 +345,55 @@ st.markdown(
     .stButton > button p, .stButton > button span, .stButton > button div { color: white !important; }
     .stButton > button:hover { filter:brightness(0.95); }
 
+    .stButton > button[kind="secondary"] {
+        background: #eef4fb !important;
+        color: var(--ink) !important;
+        border: 1px solid var(--line) !important;
+    }
+    .stButton > button[kind="secondary"] p,
+    .stButton > button[kind="secondary"] span,
+    .stButton > button[kind="secondary"] div {
+        color: var(--ink) !important;
+    }
+
+    .stButton > button:disabled {
+        background: #b8c9d8 !important;
+        color: #20364d !important;
+        border: 1px solid #95adc2 !important;
+        opacity: 1 !important;
+        filter: none !important;
+    }
+    .stButton > button:disabled p,
+    .stButton > button:disabled span,
+    .stButton > button:disabled div {
+        color: #20364d !important;
+        opacity: 1 !important;
+    }
+
+    .stTextInput input,
+    .stTextArea textarea,
+    .stDateInput input,
+    div[data-baseweb="select"] > div {
+        background: #ffffff !important;
+        color: var(--ink) !important;
+        border: 1px solid var(--line) !important;
+    }
+
+    .stTextInput input::placeholder,
+    .stTextArea textarea::placeholder,
+    .stDateInput input::placeholder {
+        color: #6b7f93 !important;
+        opacity: 1 !important;
+    }
+
+    .stTextInput input:focus,
+    .stTextArea textarea:focus,
+    .stDateInput input:focus,
+    div[data-baseweb="select"] > div:focus-within {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 2px rgba(0, 90, 141, 0.18) !important;
+    }
+
     section[data-testid="stSidebar"] { background: linear-gradient(180deg,#ffffff 0%, #edf4fb 100%); border-right: 1px solid var(--line); }
 </style>
 """,
