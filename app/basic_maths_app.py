@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import sys
+import hashlib
+import json
 from copy import deepcopy
 from datetime import date, timedelta
 from pathlib import Path
@@ -20,6 +22,152 @@ from app import analytics_module
 from app import appointments
 from app import basic_maths
 from app import mcq_manager
+
+USERS_FILE = PROJECT_ROOT / "data" / "users.json"
+PROGRESS_FILE = PROJECT_ROOT / "data" / "user_progress.json"
+
+
+def _ensure_data_files():
+    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if not USERS_FILE.exists():
+        USERS_FILE.write_text("{}", encoding="utf-8")
+    if not PROGRESS_FILE.exists():
+        PROGRESS_FILE.write_text("{}", encoding="utf-8")
+
+
+def _load_json(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_json(path: Path, payload: dict):
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
+def _account_sign_up(name: str, email: str, password: str) -> tuple[bool, str]:
+    _ensure_data_files()
+    email_norm = (email or "").strip().lower()
+    if not name.strip() or not email_norm or "@" not in email_norm or len(password or "") < 6:
+        return False, "Enter a valid name, email, and password (min 6 characters)."
+    users = _load_json(USERS_FILE)
+    if email_norm in users:
+        return False, "Account already exists. Please sign in."
+    users[email_norm] = {
+        "name": name.strip(),
+        "email": email_norm,
+        "password_hash": _hash_password(password),
+    }
+    _save_json(USERS_FILE, users)
+    return True, "Account created successfully."
+
+
+def _account_sign_in(email: str, password: str) -> tuple[bool, dict | None, str]:
+    _ensure_data_files()
+    email_norm = (email or "").strip().lower()
+    users = _load_json(USERS_FILE)
+    user = users.get(email_norm)
+    if not user:
+        return False, None, "No account found for this email."
+    if user.get("password_hash") != _hash_password(password or ""):
+        return False, None, "Incorrect password."
+    return True, user, "Signed in successfully."
+
+
+def _save_user_progress(email: str, patch: dict):
+    _ensure_data_files()
+    email_norm = (email or "").strip().lower()
+    if not email_norm:
+        return
+    progress = _load_json(PROGRESS_FILE)
+    current = progress.get(email_norm, {})
+    current.update(patch)
+    progress[email_norm] = current
+    _save_json(PROGRESS_FILE, progress)
+
+
+def _load_user_progress(email: str) -> dict:
+    _ensure_data_files()
+    email_norm = (email or "").strip().lower()
+    progress = _load_json(PROGRESS_FILE)
+    return progress.get(email_norm, {})
+
+
+def _choice_to_index(sel: str, n_choices: int) -> int:
+    if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
+        idx = ord(sel.upper()) - 65
+    else:
+        idx = 0
+    return max(0, min(idx, max(n_choices - 1, 0)))
+
+
+def _render_question_player(questions: list[dict], prefix: str, title: str, submit_label: str) -> tuple[bool, dict]:
+    if not questions:
+        return False, {}
+
+    idx_key = f"{prefix}_index"
+    ans_key = f"{prefix}_answers"
+    if idx_key not in st.session_state:
+        st.session_state[idx_key] = 0
+    if ans_key not in st.session_state:
+        st.session_state[ans_key] = {}
+
+    total = len(questions)
+    current_idx = max(0, min(int(st.session_state[idx_key]), total - 1))
+    st.session_state[idx_key] = current_idx
+
+    st.markdown(f"<div class='bm-eyebrow'>{title}: {total} questions</div>", unsafe_allow_html=True)
+    nav_cols = st.columns([1.6, 1, 1])
+    with nav_cols[0]:
+        jump = st.selectbox("Jump to question", list(range(1, total + 1)), index=current_idx, key=f"{prefix}_jump")
+        if jump - 1 != current_idx:
+            current_idx = jump - 1
+            st.session_state[idx_key] = current_idx
+    with nav_cols[1]:
+        if st.button("Previous", key=f"{prefix}_prev"):
+            current_idx = max(0, current_idx - 1)
+            st.session_state[idx_key] = current_idx
+            st.experimental_rerun()
+    with nav_cols[2]:
+        if st.button("Next", key=f"{prefix}_next"):
+            current_idx = min(total - 1, current_idx + 1)
+            st.session_state[idx_key] = current_idx
+            st.experimental_rerun()
+
+    st.progress((current_idx + 1) / total)
+    st.caption(f"Question {current_idx + 1} of {total}")
+
+    q = questions[current_idx]
+    _render_math_text(q.get("question", ""))
+    choices = q.get("choices", []) or []
+    labels = [chr(65 + i) for i in range(len(choices))]
+    for idx_c, choice in enumerate(choices):
+        st.markdown(f"**{labels[idx_c]}.**")
+        _render_math_text(choice)
+
+    saved = (st.session_state.get(ans_key) or {}).get(q.get("id"))
+    default_idx = labels.index(saved) if saved in labels else 0
+    selected = st.radio("Choose", labels, index=default_idx, key=f"{prefix}_choice_{q.get('id')}") if labels else None
+    answers = st.session_state.get(ans_key) or {}
+    answers[q.get("id")] = selected
+    st.session_state[ans_key] = answers
+
+    if total <= 12:
+        palette_cols = st.columns(min(total, 6))
+        for i in range(total):
+            col = palette_cols[i % len(palette_cols)]
+            answered = "*" if (st.session_state.get(ans_key) or {}).get(questions[i].get("id")) else ""
+            if col.button(f"Q{i+1}{answered}", key=f"{prefix}_qbtn_{i}"):
+                st.session_state[idx_key] = i
+                st.experimental_rerun()
+
+    submit_clicked = st.button(submit_label, key=f"{prefix}_submit")
+    return submit_clicked, (st.session_state.get(ans_key) or {})
 
 
 def _render_math_text(txt: str):
@@ -202,6 +350,8 @@ def _init_state():
         st.session_state.maths_quiz_result = None
     if "maths_booking" not in st.session_state:
         st.session_state.maths_booking = None
+    if "maths_auth_user" not in st.session_state:
+        st.session_state.maths_auth_user = None
 
 
 def _draft_profile_from_state() -> dict:
@@ -265,6 +415,9 @@ def _render_profile_form():
     st.session_state.maths_profile_draft = _draft_profile_from_state()
     if save_clicked:
         st.session_state.maths_profile_saved = deepcopy(st.session_state.maths_profile_draft)
+        user = st.session_state.get("maths_auth_user")
+        if user and user.get("email"):
+            _save_user_progress(user.get("email"), {"profile": st.session_state.maths_profile_saved})
         st.success("Study folio saved. The tutor will now use this profile.")
         st.rerun()
 
@@ -273,6 +426,56 @@ def _render_profile_form():
     st.caption(basic_maths.profile_summary(st.session_state.maths_profile_saved))
     if st.session_state.maths_profile_saved.get("weak_topics"):
         st.caption("Weak spots: " + ", ".join(st.session_state.maths_profile_saved.get("weak_topics", [])))
+
+
+def _render_account_panel():
+    st.markdown("<div class='bm-divider'></div>", unsafe_allow_html=True)
+    st.markdown("<div class='bm-eyebrow'>Student account</div>", unsafe_allow_html=True)
+
+    user = st.session_state.get("maths_auth_user")
+    if user:
+        st.success(f"Signed in as {user.get('name', 'Student')}")
+        st.caption(user.get("email", ""))
+        if st.button("Sign out", key="maths_sign_out"):
+            st.session_state.maths_auth_user = None
+            st.experimental_rerun()
+        return
+
+    with st.expander("Sign in / Sign up", expanded=False):
+        with st.form("maths_sign_in_form"):
+            st.caption("Sign in to save progress and continue practice later.")
+            login_email = st.text_input("Sign in email", key="maths_login_email")
+            login_password = st.text_input("Password", type="password", key="maths_login_password")
+            sign_in = st.form_submit_button("Sign in")
+        if sign_in:
+            ok, account, msg = _account_sign_in(login_email, login_password)
+            if ok:
+                st.session_state.maths_auth_user = account
+                saved = _load_user_progress(account.get("email"))
+                if saved.get("profile"):
+                    st.session_state.maths_profile_saved = saved.get("profile")
+                    _sync_draft_widgets(st.session_state.maths_profile_saved)
+                if saved.get("practice_result"):
+                    st.session_state.maths_practice_result = saved.get("practice_result")
+                if saved.get("quiz_result"):
+                    st.session_state.maths_quiz_result = saved.get("quiz_result")
+                st.success(msg)
+                st.experimental_rerun()
+            else:
+                st.error(msg)
+
+        with st.form("maths_sign_up_form"):
+            st.caption("New student? Create an account.")
+            su_name = st.text_input("Full name", key="maths_signup_name")
+            su_email = st.text_input("Sign up email", key="maths_signup_email")
+            su_password = st.text_input("Create password", type="password", key="maths_signup_password")
+            sign_up = st.form_submit_button("Sign up")
+        if sign_up:
+            ok, msg = _account_sign_up(su_name, su_email, su_password)
+            if ok:
+                st.success(msg + " Please sign in.")
+            else:
+                st.error(msg)
 
 
 def _render_hero(profile, summary, dashboard):
@@ -386,32 +589,28 @@ def _render_practice_lab(profile, ai_client, provider):
     # If a practice set was requested from a recommendation card, render it first
     if st.session_state.get("maths_practice_questions"):
         questions = st.session_state.get("maths_practice_questions") or []
-        with st.form("practice_form"):
-            st.markdown(f"<div class='bm-eyebrow'>Practice: {len(questions)} questions</div>", unsafe_allow_html=True)
-            for q in questions:
-                _render_math_text(q.get("question", ""))
-                choices = q.get("choices", []) or []
-                labels = [chr(65 + i) for i in range(len(choices))]
-                for idx_c, choice in enumerate(choices):
-                    st.markdown(f"**{labels[idx_c]}.** ")
-                    _render_math_text(choice)
-                st.radio("Choose", labels, key=f"prac-{q['id']}")
-            submit_practice = st.form_submit_button("Submit practice")
+        submit_practice, practice_answers = _render_question_player(
+            questions,
+            prefix="practice",
+            title="Practice",
+            submit_label="Submit practice",
+        )
 
         if submit_practice:
             responses = {}
             for q in questions:
-                sel = st.session_state.get(f"prac-{q['id']}")
-                if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
-                    idx = ord(sel.upper()) - 65
-                else:
-                    idx = 0
-                responses[q["id"]] = max(0, min(idx, len(q.get("choices", [])) - 1))
+                sel = practice_answers.get(q.get("id"))
+                responses[q["id"]] = _choice_to_index(sel, len(q.get("choices", []) or []))
 
             result = mcq_manager.evaluate_responses(responses)
             st.session_state.maths_practice_result = result
+            user = st.session_state.get("maths_auth_user")
+            if user and user.get("email"):
+                _save_user_progress(user.get("email"), {"practice_result": result})
             try:
                 del st.session_state["maths_practice_questions"]
+                del st.session_state["practice_answers"]
+                del st.session_state["practice_index"]
             except Exception:
                 pass
             analytics_module.log_interaction(profile.get("student_name") or "maths-student", "practice", str(result))
@@ -567,40 +766,36 @@ def _render_practice_lab(profile, ai_client, provider):
             st.warning("No diagnostic questions available for this level/topic. Generate the KB first.")
         else:
             st.session_state.maths_diagnostic_questions = questions
-            # clear any previous responses in session
-            for q in questions:
-                key = f"diag-{q['id']}"
-                if key in st.session_state:
-                    del st.session_state[key]
+            st.session_state["diagnostic_answers"] = {}
+            st.session_state["diagnostic_index"] = 0
 
     if st.session_state.get("maths_diagnostic_questions"):
         questions = st.session_state.maths_diagnostic_questions
-        with st.form("diagnostic_form"):
-            st.markdown(f"<div class='bm-eyebrow'>Diagnostic: {len(questions)} questions</div>", unsafe_allow_html=True)
-            for q in questions:
-                _render_math_text(q.get("question", ""))
-                choices = q.get("choices", []) or []
-                labels = [chr(65 + i) for i in range(len(choices))]
-                for idx_c, choice in enumerate(choices):
-                    st.markdown(f"**{labels[idx_c]}.** ")
-                    _render_math_text(choice)
-                st.radio("Choose", labels, key=f"diag-{q['id']}")
-            submit_diag = st.form_submit_button("Submit diagnostic")
+        submit_diag, diagnostic_answers = _render_question_player(
+            questions,
+            prefix="diagnostic",
+            title="Diagnostic",
+            submit_label="Submit diagnostic",
+        )
 
         if submit_diag:
             responses = {}
             for q in questions:
-                sel = st.session_state.get(f"diag-{q['id']}")
-                if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
-                    idx = ord(sel.upper()) - 65
-                else:
-                    idx = 0
-                responses[q["id"]] = max(0, min(idx, len(q.get("choices", [])) - 1))
+                sel = diagnostic_answers.get(q.get("id"))
+                responses[q["id"]] = _choice_to_index(sel, len(q.get("choices", []) or []))
 
             result = mcq_manager.evaluate_responses(responses)
             st.session_state.maths_quiz_result = result
+            user = st.session_state.get("maths_auth_user")
+            if user and user.get("email"):
+                _save_user_progress(user.get("email"), {"quiz_result": result})
             # clear questions after submission
             del st.session_state.maths_diagnostic_questions
+            try:
+                del st.session_state["diagnostic_answers"]
+                del st.session_state["diagnostic_index"]
+            except Exception:
+                pass
             analytics_module.log_interaction(profile.get("student_name") or "maths-student", "diagnostic", str(result))
 
     # Show diagnostic results if present
@@ -794,6 +989,7 @@ def main():
         st.markdown("<div class='bm-eyebrow'>Assistant mode</div>", unsafe_allow_html=True)
         st.caption(f"Using {provider}")
         _render_profile_form()
+        _render_account_panel()
 
     st.markdown("<div class='bm-eyebrow'>Archive Tutor inspired · Basic Maths Prep</div>", unsafe_allow_html=True)
 
@@ -829,27 +1025,13 @@ def main():
     if st.session_state.get("maths_show_modal") and st.session_state.get("maths_modal_questions"):
         with st.modal("Quick practice"):
             mq = st.session_state.get("maths_modal_questions") or []
-            with st.form("modal_practice_form"):
-                st.markdown(f"<div class='bm-eyebrow'>Quick practice: {len(mq)} questions</div>", unsafe_allow_html=True)
-                for q in mq:
-                    _render_math_text(q.get("question", ""))
-                    choices = q.get("choices", []) or []
-                    labels = [chr(65 + i) for i in range(len(choices))]
-                    for idx_c, choice in enumerate(choices):
-                        st.markdown(f"**{labels[idx_c]}.** ")
-                        _render_math_text(choice)
-                    st.radio("Choose", labels, key=f"modal-prac-{q['id']}")
-                submit_modal = st.form_submit_button("Submit practice")
+            submit_modal, modal_answers = _render_question_player(mq, prefix="modal", title="Quick practice", submit_label="Submit practice")
 
             if submit_modal:
                 responses = {}
                 for q in mq:
-                    sel = st.session_state.get(f"modal-prac-{q['id']}")
-                    if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
-                        idx = ord(sel.upper()) - 65
-                    else:
-                        idx = 0
-                    responses[q["id"]] = max(0, min(idx, len(q.get("choices", [])) - 1))
+                    sel = modal_answers.get(q.get("id"))
+                    responses[q["id"]] = _choice_to_index(sel, len(q.get("choices", []) or []))
 
                 result = mcq_manager.evaluate_responses(responses)
                 st.session_state.maths_practice_result = result
@@ -859,6 +1041,11 @@ def main():
                 except Exception:
                     pass
                 st.session_state.maths_show_modal = False
+                try:
+                    del st.session_state["modal_answers"]
+                    del st.session_state["modal_index"]
+                except Exception:
+                    pass
                 analytics_module.log_interaction(profile.get("student_name") or "maths-student", "practice", str(result))
 
     if nav == "Dashboard":
