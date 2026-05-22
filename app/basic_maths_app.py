@@ -5,6 +5,7 @@ import sys
 from copy import deepcopy
 from datetime import date, timedelta
 from pathlib import Path
+import re
 
 import pandas as pd
 import plotly.express as px
@@ -53,26 +54,25 @@ st.set_page_config(
 
 st.markdown(
     """
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
     :root {
-        --paper: #f7fbfc;
-        --ink: #0b2545;
-        --muted: #556574;
+        --paper: #f6fafb;
+        --ink: #10233f;
+        --muted: #5a6b7b;
         --accent: #0f6b6a;
-        --accent-soft: #e8f6f5;
-        --line: #e6eef2;
-        --shadow: rgba(11, 37, 69, 0.06);
+        --accent-soft: #e7f5f4;
+        --line: #dde7ec;
+        --shadow: rgba(16, 35, 63, 0.06);
     }
 
     .stApp {
         background: var(--paper);
         color: var(--ink);
-        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        font-family: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     }
 
     h1, h2, h3, h4 {
-        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto;
+        font-family: "Aptos Display", "Aptos", "Segoe UI", Arial, sans-serif;
         color: var(--ink) !important;
         letter-spacing: -0.01em;
     }
@@ -123,6 +123,14 @@ st.markdown(
 
     .bm-divider { height:1px; background:linear-gradient(90deg,var(--line),transparent); margin:1rem 0; }
 
+    .bm-note {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        color: var(--muted);
+    }
+
     .stButton > button { border-radius:8px; border: none; background: var(--accent); color: white; font-weight:600; padding:0.6rem 0.85rem }
     .stButton > button:hover { filter:brightness(0.95); }
 
@@ -162,6 +170,18 @@ def _provider_key(provider, secrets):
     if provider == "Google":
         return secrets.get("GOOGLE_API_KEY")
     return None
+
+
+def _debug_mode_enabled(secrets: dict | None = None) -> bool:
+    env_value = str(os.environ.get("MATHS_SHOW_ADMIN", "")).strip().lower()
+    if env_value in {"1", "true", "yes", "on"}:
+        return True
+    try:
+        if secrets and str(secrets.get("MATHS_SHOW_ADMIN", "")).strip().lower() in {"1", "true", "yes", "on"}:
+            return True
+    except Exception:
+        pass
+    return False
 
 
 def _init_state():
@@ -212,7 +232,9 @@ def _sync_draft_widgets(profile: dict):
 
 def _build_ai_client():
     secrets = _load_secrets()
-    provider_choice = st.sidebar.selectbox("AI provider", ["Auto (recommended)", "OpenAI", "Google", "Mock"], index=0)
+    with st.sidebar.expander("Teacher / admin settings", expanded=False):
+        st.caption("Use this only while testing the assistant backend.")
+        provider_choice = st.selectbox("AI provider", ["Auto (recommended)", "OpenAI", "Google", "Mock"], index=0)
     provider = _resolve_provider(provider_choice, secrets)
     api_key = _provider_key(provider, secrets)
     if provider == "Mock":
@@ -225,6 +247,7 @@ def _render_profile_form():
     exam_default = st.session_state.maths_profile_saved.get("exam_date") or (date.today() + timedelta(days=60))
 
     with st.sidebar.form("maths_profile_form", clear_on_submit=False):
+        st.markdown("<div class='bm-note'>Profile details are used only to personalise maths recommendations, diagnostics, and scheduling.</div>", unsafe_allow_html=True)
         st.text_input("Student name", key="maths_draft_student_name")
         st.text_input("Email", key="maths_draft_email")
         st.selectbox("Grade", ["Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"], key="maths_draft_grade")
@@ -262,10 +285,10 @@ def _render_hero(profile, summary, dashboard):
 
         st.markdown(
             "<div class='bm-panel'><div class='bm-eyebrow'>What this app delivers</div>"
-            "<div class='bm-index-item'><strong>Diagnostic clarity</strong><br/><span style='color:#6f6159'>30 questions curated by grade and topic readiness.</span></div>"
-            "<div class='bm-index-item'><strong>Targeted recommendations</strong><br/><span style='color:#6f6159'>AI-style review of incorrect answers for focused improvement.</span></div>"
-            "<div class='bm-index-item'><strong>Academic planning</strong><br/><span style='color:#6f6159'>Week-by-week practice tailored to the student stage and goals.</span></div>"
-            "<div class='bm-index-item'><strong>Appointment scheduling</strong><br/><span style='color:#6f6159'>Auto-book coaching slots based on availability.</span></div>"
+            "<div class='bm-index-item'><strong>Diagnostic clarity</strong><br/><span style='color:#5a6b7b'>30 questions curated by grade and topic readiness.</span></div>"
+            "<div class='bm-index-item'><strong>Targeted recommendations</strong><br/><span style='color:#5a6b7b'>Review incorrect answers and focus on the exact skills that need attention.</span></div>"
+            "<div class='bm-index-item'><strong>Academic planning</strong><br/><span style='color:#5a6b7b'>Week-by-week practice tailored to the student stage and goals.</span></div>"
+            "<div class='bm-index-item'><strong>Appointment scheduling</strong><br/><span style='color:#5a6b7b'>Auto-book coaching slots based on availability.</span></div>"
             "</div>",
             unsafe_allow_html=True,
         )
@@ -300,7 +323,7 @@ def _render_hero(profile, summary, dashboard):
     metrics[0].metric("Attempts", dashboard["attempts"])
     metrics[1].metric("Accuracy", f"{dashboard['accuracy']}%")
     metrics[2].metric("Next level", dashboard["next_level"])
-    metrics[3].metric("Weak spots", dashboard["weak_spots"])
+    metrics[3].metric("Weak topics", dashboard["weak_spots"])
 
 
 def _render_topic_cards(profile):
@@ -377,11 +400,11 @@ def _render_practice_lab(profile, ai_client, provider):
             responses = {}
             for q in questions:
                 sel = st.session_state.get(f"prac-{q['id']}")
-                try:
-                    idx = q.get("choices", []).index(sel)
-                except Exception:
+                if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
+                    idx = ord(sel.upper()) - 65
+                else:
                     idx = 0
-                responses[q["id"]] = idx
+                responses[q["id"]] = max(0, min(idx, len(q.get("choices", [])) - 1))
 
             result = mcq_manager.evaluate_responses(responses)
             st.session_state.maths_practice_result = result
@@ -566,11 +589,11 @@ def _render_practice_lab(profile, ai_client, provider):
             responses = {}
             for q in questions:
                 sel = st.session_state.get(f"diag-{q['id']}")
-                try:
-                    idx = q.get("choices", []).index(sel)
-                except Exception:
+                if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
+                    idx = ord(sel.upper()) - 65
+                else:
                     idx = 0
-                responses[q["id"]] = idx
+                responses[q["id"]] = max(0, min(idx, len(q.get("choices", [])) - 1))
 
             result = mcq_manager.evaluate_responses(responses)
             st.session_state.maths_quiz_result = result
@@ -751,10 +774,10 @@ def main():
 
     with st.sidebar:
         st.markdown("<div class='bm-eyebrow'>Basic Maths Prep</div>", unsafe_allow_html=True)
-        st.markdown("<h3 style='margin-top:0'>Complete learning path</h3>", unsafe_allow_html=True)
-        st.caption("A calm prep desk for school maths, revision planning, and automatic booking.")
+        st.markdown("<h3 style='margin-top:0'>Personalised maths prep desk</h3>", unsafe_allow_html=True)
+        st.caption("A calm, student-friendly workspace for diagnostics, revision planning, and coaching.")
         st.progress(min(max(stats["progress"], 0), 100) / 100)
-        st.caption(f"Progress: {stats['progress']}%")
+        st.caption(f"Learning progress: {stats['progress']}%")
 
         nav = st.radio(
             "Go to",
@@ -766,8 +789,8 @@ def main():
         st.session_state.maths_nav = nav
 
         st.markdown("<div class='bm-divider'></div>", unsafe_allow_html=True)
-        st.markdown("<div class='bm-eyebrow'>AI backend</div>", unsafe_allow_html=True)
-        st.caption(f"Using {provider} mode")
+        st.markdown("<div class='bm-eyebrow'>Assistant mode</div>", unsafe_allow_html=True)
+        st.caption(f"Using {provider}")
         _render_profile_form()
 
     st.markdown("<div class='bm-eyebrow'>Archive Tutor inspired · Basic Maths Prep</div>", unsafe_allow_html=True)
@@ -820,11 +843,11 @@ def main():
                 responses = {}
                 for q in mq:
                     sel = st.session_state.get(f"modal-prac-{q['id']}")
-                    try:
-                        idx = q.get("choices", []).index(sel)
-                    except Exception:
+                    if isinstance(sel, str) and len(sel) == 1 and sel.isalpha():
+                        idx = ord(sel.upper()) - 65
+                    else:
                         idx = 0
-                    responses[q["id"]] = idx
+                    responses[q["id"]] = max(0, min(idx, len(q.get("choices", [])) - 1))
 
                 result = mcq_manager.evaluate_responses(responses)
                 st.session_state.maths_practice_result = result

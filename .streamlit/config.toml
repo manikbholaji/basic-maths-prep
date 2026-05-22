@@ -1,0 +1,17 @@
+[server]
+headless = true
+enableCORS = false
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = false
+
+[theme]
+primaryColor = "#0f6b6a"
+backgroundColor = "#f7fbfc"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#0b2545"
+font = "sans serif"
+
+[global]
+unit = "metric"
