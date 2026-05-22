@@ -266,13 +266,13 @@ st.markdown(
     """
 <style>
     :root {
-        --paper: #f6fafb;
-        --ink: #10233f;
-        --muted: #5a6b7b;
-        --accent: #0f6b6a;
-        --accent-soft: #e7f5f4;
-        --line: #dde7ec;
-        --shadow: rgba(16, 35, 63, 0.06);
+        --paper: #f4f8fc;
+        --ink: #0b1f35;
+        --muted: #2f4a63;
+        --accent: #005a8d;
+        --accent-soft: #e0eef9;
+        --line: #c6d8e8;
+        --shadow: rgba(11, 31, 53, 0.10);
     }
 
     .stApp {
@@ -334,7 +334,7 @@ st.markdown(
     .bm-divider { height:1px; background:linear-gradient(90deg,var(--line),transparent); margin:1rem 0; }
 
     .bm-note {
-        background: #fff;
+        background: #ffffff;
         border: 1px solid var(--line);
         border-radius: 10px;
         padding: 0.85rem 1rem;
@@ -345,7 +345,7 @@ st.markdown(
     .stButton > button p, .stButton > button span, .stButton > button div { color: white !important; }
     .stButton > button:hover { filter:brightness(0.95); }
 
-    section[data-testid="stSidebar"] { background: linear-gradient(180deg,#ffffff 0%, #f7fbfc 100%); border-right: 1px solid var(--line); }
+    section[data-testid="stSidebar"] { background: linear-gradient(180deg,#ffffff 0%, #edf4fb 100%); border-right: 1px solid var(--line); }
 </style>
 """,
     unsafe_allow_html=True,
@@ -557,10 +557,10 @@ def _render_hero(profile, summary, dashboard):
 
         st.markdown(
             "<div class='bm-panel'><div class='bm-eyebrow'>What this app delivers</div>"
-            "<div class='bm-index-item'><strong>Diagnostic clarity</strong><br/><span style='color:#5a6b7b'>30 questions curated by grade and topic readiness.</span></div>"
-            "<div class='bm-index-item'><strong>Targeted recommendations</strong><br/><span style='color:#5a6b7b'>Review incorrect answers and focus on the exact skills that need attention.</span></div>"
-            "<div class='bm-index-item'><strong>Academic planning</strong><br/><span style='color:#5a6b7b'>Week-by-week practice tailored to the student stage and goals.</span></div>"
-            "<div class='bm-index-item'><strong>Appointment scheduling</strong><br/><span style='color:#5a6b7b'>Auto-book coaching slots based on availability.</span></div>"
+            "<div class='bm-index-item'><strong>Diagnostic clarity</strong><br/><span style='color:var(--muted)'>30 questions curated by grade and topic readiness.</span></div>"
+            "<div class='bm-index-item'><strong>Targeted recommendations</strong><br/><span style='color:var(--muted)'>Review incorrect answers and focus on the exact skills that need attention.</span></div>"
+            "<div class='bm-index-item'><strong>Academic planning</strong><br/><span style='color:var(--muted)'>Week-by-week practice tailored to the student stage and goals.</span></div>"
+            "<div class='bm-index-item'><strong>Appointment scheduling</strong><br/><span style='color:var(--muted)'>Auto-book coaching slots based on availability.</span></div>"
             "</div>",
             unsafe_allow_html=True,
         )
@@ -584,9 +584,9 @@ def _render_hero(profile, summary, dashboard):
         st.markdown(
             "<div class='bm-panel'>"
             "<div class='bm-eyebrow'>Study snapshot</div>"
-            f"<div class='bm-index-item'><strong>Profile</strong><br/><span style='color:#6f6159'>{basic_maths.profile_summary(profile)}</span></div>"
-            f"<div class='bm-index-item'><strong>Recommended focus</strong><br/><span style='color:#6f6159'>{summary['recommendations'][0]['title'] if summary['recommendations'] else 'Balanced review'}</span></div>"
-            f"<div class='bm-index-item'><strong>Next practice</strong><br/><span style='color:#6f6159'>{next_practice}</span></div>"
+            f"<div class='bm-index-item'><strong>Profile</strong><br/><span style='color:var(--muted)'>{basic_maths.profile_summary(profile)}</span></div>"
+            f"<div class='bm-index-item'><strong>Recommended focus</strong><br/><span style='color:var(--muted)'>{summary['recommendations'][0]['title'] if summary['recommendations'] else 'Balanced review'}</span></div>"
+            f"<div class='bm-index-item'><strong>Next practice</strong><br/><span style='color:var(--muted)'>{next_practice}</span></div>"
             "</div>",
             unsafe_allow_html=True,
         )
