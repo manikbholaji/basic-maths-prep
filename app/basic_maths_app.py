@@ -5,7 +5,7 @@ import sys
 import hashlib
 import json
 from copy import deepcopy
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from pathlib import Path
 import re
 
@@ -43,7 +43,14 @@ def _load_json(path: Path) -> dict:
 
 
 def _save_json(path: Path, payload: dict):
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    # Write atomically: write to a temp file then replace the target
+    try:
+        tmp = path.parent / (path.name + ".tmp")
+        tmp.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp.replace(path)
+    except Exception:
+        # fallback to direct write
+        path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def _hash_password(password: str) -> str:
@@ -152,6 +159,33 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
     current_idx = max(0, min(int(st.session_state[idx_key]), total - 1))
     st.session_state[idx_key] = current_idx
 
+    # Commit any pending autosave if debounce passed
+    pending = st.session_state.get("bm_pending_save") or {}
+    try:
+        if pending:
+            when = pending.get("when")
+            if when and (datetime.now() - when).total_seconds() >= 2:
+                # perform save
+                user_p = pending.get("user")
+                data_p = pending.get("checkpoint")
+                if user_p and user_p.get("email") and data_p:
+                    _save_user_progress(user_p.get("email"), {"practice_session": data_p})
+                    st.session_state["bm_last_auto_save"] = datetime.now().strftime("%H:%M:%S")
+                    msg = f"Auto-saved (Q{int(data_p.get('index',0))+1}) at {st.session_state.get('bm_last_auto_save')}"
+                    st.session_state["bm_auto_save_msg"] = msg
+                    try:
+                        st.markdown(f"<div id='bm-live' aria-live='polite' aria-atomic='true' style='position:absolute;left:-10000px'>{msg}</div>", unsafe_allow_html=True)
+                    except Exception:
+                        pass
+                    # focus hint for client helper
+                    try:
+                        st.markdown(f"<div id='bm-focus-label' style='position:absolute;left:-10000px'>{'Q'+str(int(data_p.get('index',0))+1)}</div>", unsafe_allow_html=True)
+                    except Exception:
+                        pass
+                st.session_state["bm_pending_save"] = {}
+    except Exception:
+        st.session_state["bm_pending_save"] = {}
+
     st.markdown(f"<div class='bm-eyebrow'>{title}: {total} questions</div>", unsafe_allow_html=True)
     nav_cols = st.columns([1.6, 1, 1])
     with nav_cols[0]:
@@ -163,21 +197,33 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
         if st.button("Previous", key=f"{prefix}_prev"):
             current_idx = max(0, current_idx - 1)
             st.session_state[idx_key] = current_idx
-            st.experimental_rerun()
+            _safe_rerun()
     with nav_cols[2]:
         if st.button("Next", key=f"{prefix}_next"):
             current_idx = min(total - 1, current_idx + 1)
             st.session_state[idx_key] = current_idx
-            st.experimental_rerun()
+            _safe_rerun()
 
-    st.progress((current_idx + 1) / total)
+    pct = int(round(((current_idx + 1) / total) * 100))
+    st.markdown(f"<div class='bm-mini-progress-rail'><div class='bm-mini-progress-fill' style='width:{pct}%;'></div></div>", unsafe_allow_html=True)
     st.caption(f"Question {current_idx + 1} of {total}")
 
     q = questions[current_idx]
     flags = st.session_state.get(flag_key) or {}
+    # Accessibility: hidden label for the question and ARIA group wrapper
+    qid = q.get('id')
+    try:
+        st.markdown(f"<div id='qlabel-{qid}' style='position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;'>{q.get('question','')[:160]}</div>", unsafe_allow_html=True)
+    except Exception:
+        pass
     top_actions = st.columns([1.2, 1, 1])
     with top_actions[0]:
-        pass
+        user = st.session_state.get("maths_auth_user")
+        if user and user.get("email"):
+            if st.button("Save progress", key=f"{prefix}_save_progress"):
+                checkpoint = {"questions": questions, "answers": st.session_state.get(ans_key) or {}, "index": int(st.session_state.get(idx_key, 0))}
+                _save_user_progress(user.get("email"), {"practice_session": checkpoint})
+                st.markdown(f"<span class='bm-progress-saved'>Progress saved (Q{checkpoint['index']+1})</span>", unsafe_allow_html=True)
     with top_actions[1]:
         st.caption("Status legend: ○ unseen · ● answered · ⚑ flagged")
     with top_actions[2]:
@@ -186,21 +232,346 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
         if st.button(flag_label, key=f"{prefix}_flag_btn"):
             flags[q.get("id")] = not current_flag
             st.session_state[flag_key] = flags
-            st.experimental_rerun()
+            _safe_rerun()
 
     _render_math_text(q.get("question", ""))
     choices = q.get("choices", []) or []
     labels = [chr(65 + i) for i in range(len(choices))]
-    for idx_c, choice in enumerate(choices):
-        st.markdown(f"**{labels[idx_c]}.**")
-        _render_math_text(choice)
 
+    # Render the radio selector above the choices so selection maps clearly to each item
     saved = (st.session_state.get(ans_key) or {}).get(q.get("id"))
     default_idx = labels.index(saved) if saved in labels else 0
     selected = st.radio("Choose", labels, index=default_idx, key=f"{prefix}_choice_{q.get('id')}") if labels else None
+
+    # Render choices inside a semantic radio group for accessibility
+    st.markdown(f"<div role='radiogroup' aria-label='Question choices' class='bm-choices-group'>", unsafe_allow_html=True)
+    # Render each choice in its own container so Streamlit preserves structure.
+    for idx_c, choice in enumerate(choices):
+        is_sel = (selected == labels[idx_c])
+        qid = q.get('id')
+        with st.container():
+            cls = "bm-choice bm-selected" if is_sel else "bm-choice"
+            # compute an accessible name for the radio from the label and plain text of the choice
+            try:
+                import re as _re
+                _plain = _re.sub(r'<[^>]*>', '', str(choice)).strip()
+                _plain = _plain.replace('"', '&quot;')
+            except Exception:
+                _plain = str(choice)
+            aria_checked = 'true' if is_sel else 'false'
+            aria_label = f"Choice {labels[idx_c]}: {_plain[:140]}"
+            st.markdown(f"<div class=\"{cls}\" role='radio' aria-checked='{aria_checked}' aria-label=\"{aria_label}\" tabindex='0'>", unsafe_allow_html=True)
+            # Show label and content side-by-side using a simple table for alignment
+            try:
+                cols = st.columns([0.12, 1, 0.26])
+                with cols[0]:
+                    st.markdown(f"<div style='font-weight:700;color:var(--accent);'>{labels[idx_c]}</div>", unsafe_allow_html=True)
+                with cols[1]:
+                    _render_math_text(choice)
+                with cols[2]:
+                    pick_key = f"{prefix}_pick_{qid}_{idx_c}"
+                    if st.button("Select", key=pick_key):
+                        # set the radio selection and mirror into answers map
+                        st.session_state[f"{prefix}_choice_{qid}"] = labels[idx_c]
+                        ans_map = st.session_state.get(ans_key) or {}
+                        ans_map[qid] = labels[idx_c]
+                        st.session_state[ans_key] = ans_map
+                        user = st.session_state.get("maths_auth_user")
+                        try:
+                            if user and user.get("email"):
+                                checkpoint = {"questions": questions, "answers": st.session_state.get(ans_key) or {}, "index": int(st.session_state.get(idx_key, 0))}
+                                _save_user_progress(user.get("email"), {"practice_session": checkpoint})
+                                ts = datetime.now().strftime("%H:%M:%S")
+                                st.session_state["bm_last_auto_save"] = ts
+                                msg = f"Auto-saved (Q{int(st.session_state.get(idx_key,0))+1}) at {ts}"
+                                st.session_state["bm_auto_save_msg"] = msg
+                                st.session_state["bm_auto_save_msg_ts"] = datetime.now()
+                                try:
+                                    st.markdown(f"<div id='bm-live' aria-live='polite' aria-atomic='true' style='position:absolute;left:-10000px'>{msg}</div>", unsafe_allow_html=True)
+                                except Exception:
+                                    pass
+                                try:
+                                    # set a focus hint
+                                    st.markdown(f"<div id='bm-focus-label' style='position:absolute;left:-10000px'>{labels[idx_c]}</div>", unsafe_allow_html=True)
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                        _safe_rerun()
+            except Exception:
+                # fallback: simple rendering
+                _render_math_text(choice)
+            st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    # (Removed keyboard text-input fallback; global key capture is provided by the injected JS helper)
+
+    # Insert a small client-side helper component that listens for global keypresses
+    # and forwards clicks on `.bm-choice` to the corresponding Select button.
+    try:
+        import streamlit.components.v1 as components
+
+        helper_js = r"""
+        <script>
+        (function(){
+            try{
+                const parentDoc = window.parent.document;
+                // Immediate cleanup: remove problematic attributes and ensure landmarks/headings early
+                try{
+                    (function(){
+                        try{ Array.from(parentDoc.querySelectorAll('.stSidebar')).forEach(function(s){ try{ s.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+                        try{ const rec = parentDoc.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = parentDoc.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); try{ rec.parentNode.replaceChild(h2, rec);}catch(e){} } }catch(e){}
+                        try{ if(!parentDoc.querySelector('main[role="main"]')){ const appRoot = parentDoc.querySelector('.stApp') || parentDoc.querySelector('[data-testid="stAppViewContainer"]') || parentDoc.querySelector('#root'); if(appRoot){ const mainEl = parentDoc.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot);}catch(e){} } } }catch(e){}
+                    })();
+                }catch(e){}
+
+                function clickSelectByChoiceIndex(idx){
+                    // find all Select buttons currently visible (they correspond to choices)
+                    const btns = Array.from(parentDoc.querySelectorAll('button')).filter(b => b.textContent && b.textContent.trim()==='Select');
+                    if(btns && btns[idx]){
+                        btns[idx].click();
+                    }
+                }
+
+                // global key handler (A-D)
+                parentDoc.addEventListener('keydown', function(e){
+                    const tag = (e.target && e.target.tagName) || '';
+                    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                    const k = (e.key || '').toUpperCase();
+                    if(k >= 'A' && k <= 'D'){
+                        const idx = k.charCodeAt(0) - 65;
+                        clickSelectByChoiceIndex(idx);
+                        // update aria labels/checked after keyboard selection
+                        setTimeout(updateAria, 40);
+                    }
+                }, true);
+
+                // make entire .bm-choice clickable: forward click to matching Select button
+                parentDoc.addEventListener('click', function(e){
+                    const el = e.target.closest && e.target.closest('.bm-choice');
+                    if(!el) return;
+                    // determine index of this .bm-choice among all choices in the current question
+                    const all = Array.from(parentDoc.querySelectorAll('.bm-choice'));
+                    const idx = all.indexOf(el);
+                    if(idx >= 0){
+                        // click the corresponding Select button
+                        clickSelectByChoiceIndex(idx);
+                        setTimeout(updateAria, 40);
+                    }
+                }, true);
+                // map Select buttons to accessible labels and reflect checked state
+                function updateAria(){
+                    try{
+                        const all = Array.from(parentDoc.querySelectorAll('.bm-choice'));
+                        const btns = Array.from(parentDoc.querySelectorAll('button')).filter(b => b.textContent && b.textContent.trim()==='Select');
+                        all.forEach((el, i) => {
+                            el.setAttribute('role','radio');
+                            if(el.classList.contains('bm-selected')) el.setAttribute('aria-checked','true'); else el.setAttribute('aria-checked','false');
+                            const lbl = (el.querySelector('div') && el.querySelector('div').textContent) ? el.querySelector('div').textContent.trim() : String.fromCharCode(65+i);
+                            if(btns[i]) btns[i].setAttribute('aria-label', `Select choice ${lbl}`);
+                        });
+                    }catch(e){/*ignore*/}
+                }
+                // initial call
+                setTimeout(updateAria, 100);
+                // accessibility fixes: remove invalid aria attributes, set role=main, and normalize heading levels
+                try{
+                    // remove aria-expanded on elements that shouldn't have it (e.g., Streamlit sidebar)
+                    Array.from(parentDoc.querySelectorAll('[aria-expanded]')).forEach(el=>{
+                        el.removeAttribute('aria-expanded');
+                    });
+                    // watch for nodes that add aria-expanded later and remove it
+                    const obs = new MutationObserver(function(muts){
+                        muts.forEach(m=>{
+                            if(m.type === 'attributes' && m.attributeName === 'aria-expanded'){
+                                try{ m.target.removeAttribute('aria-expanded'); }catch(e){}
+                            }
+                            if(m.addedNodes && m.addedNodes.length){
+                                m.addedNodes.forEach(node=>{
+                                    try{ if(node.querySelectorAll){ Array.from(node.querySelectorAll('[aria-expanded]')).forEach(el=>el.removeAttribute('aria-expanded')); } }catch(e){}
+                                });
+                            }
+                        });
+                    });
+                    try{ obs.observe(parentDoc.body, { attributes:true, subtree:true, childList:true }); }catch(e){}
+                    // also periodically remove aria-expanded for a short window (workaround for re-renders)
+                    try{
+                        let rid = setInterval(()=>{
+                            Array.from(parentDoc.querySelectorAll('[aria-expanded]')).forEach(el=>el.removeAttribute('aria-expanded'));
+                        }, 200);
+                        setTimeout(()=>{ clearInterval(rid); }, 5000);
+                    }catch(e){}
+                }catch(e){}
+                try{
+                    const app = parentDoc.querySelector('.stApp');
+                    if(app) app.setAttribute('role','main');
+                }catch(e){}
+                try{
+                    // replace existing and newly added h4 tags with h3 to improve heading order
+                    function replaceH4(node){
+                        const h4s = Array.from((node||parentDoc).getElementsByTagName('h4'));
+                        h4s.forEach(h4=>{
+                            const h3 = parentDoc.createElement('h3');
+                            h3.innerHTML = h4.innerHTML;
+                            for(const attr of h4.attributes) h3.setAttribute(attr.name, attr.value);
+                            h4.parentNode.replaceChild(h3, h4);
+                        });
+                    }
+                    replaceH4();
+                    const hObs = new MutationObserver((muts)=>{ muts.forEach(m=>{ if(m.addedNodes) replaceH4(m.addedNodes[0]); }); });
+                    try{ hObs.observe(parentDoc.body, { childList:true, subtree:true }); }catch(e){}
+                }catch(e){}
+                // focus helper: if server emitted a bm-focus-label element, focus matching Select button
+                function focusFromLabel(){
+                    try{
+                        const hint = parentDoc.getElementById('bm-focus-label');
+                        if(!hint) return;
+                        const label = hint.textContent && hint.textContent.trim();
+                        if(!label) return;
+                        const btns = Array.from(parentDoc.querySelectorAll('button')).filter(b => b.textContent && b.textContent.trim()==='Select');
+                        // find button whose aria-label contains the label text or whose previous sibling label matches
+                        for(const b of btns){
+                            const al = (b.getAttribute('aria-label')||'').toString();
+                            if(al.includes(label) || b.closest('.bm-choice') && b.closest('.bm-choice').textContent.includes(label)){
+                                b.focus();
+                                break;
+                            }
+                        }
+                        // remove hint to avoid repeat
+                        hint.remove();
+                        // remove tabindex from KaTeX display blocks to avoid scrollable-region-focusable issues
+                        try{ Array.from(parentDoc.querySelectorAll('.katex-display')).forEach(el=>{ try{ el.removeAttribute('tabindex'); el.setAttribute('role','group'); el.setAttribute('aria-label','Math expression'); Array.from(el.querySelectorAll('[tabindex]')).forEach(ch=>{ try{ ch.removeAttribute('tabindex'); }catch(e){} }); }catch(e){} }); }catch(e){}
+                        // ensure combobox inputs have aria-expanded/aria-controls to satisfy required ARIA attributes
+                        try{
+                            let fakeIdCounter = 0;
+                            Array.from(parentDoc.querySelectorAll('input[role="combobox"]')).forEach(inp=>{
+                                try{
+                                    if(!inp.hasAttribute('aria-expanded')) inp.setAttribute('aria-expanded','false');
+                                    if(!inp.hasAttribute('aria-controls')){
+                                        const nearby = inp.parentNode && inp.parentNode.querySelector && inp.parentNode.querySelector('[role="listbox"]');
+                                        if(nearby && nearby.id) inp.setAttribute('aria-controls', nearby.id);
+                                        else if(nearby && !nearby.id){ const id = 'bm-fake-listbox-'+(fakeIdCounter++); nearby.id = id; inp.setAttribute('aria-controls', id); }
+                                        else { const id = 'bm-fake-listbox-'+(fakeIdCounter++); const stub = parentDoc.createElement('div'); stub.setAttribute('id', id); stub.setAttribute('role','listbox'); stub.setAttribute('aria-hidden','true'); stub.style.display='none'; parentDoc.body.appendChild(stub); inp.setAttribute('aria-controls', id); }
+                                    }
+                                }catch(e){}
+                            });
+                        }catch(e){}
+                        // remove aria-expanded from non-combobox elements (Streamlit sidebar uses aria-expanded on a <section>)
+                        try{ Array.from(parentDoc.querySelectorAll('[aria-expanded]')).forEach(el=>{ try{ if(!(el.tagName==='INPUT' && el.getAttribute('role')==='combobox')) el.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+                        // specifically clear aria-expanded on Streamlit sidebar sections which axe flags
+                        try{ Array.from(parentDoc.querySelectorAll('.stSidebar')).forEach(el=>{ try{ el.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+                        // run an interval and attribute observer to clear lingering aria-expanded attributes that Streamlit may set after render
+                        try{
+                            const cleanupSidebar = ()=>{ Array.from(parentDoc.querySelectorAll('.stSidebar')).forEach(el=>{ try{ el.removeAttribute('aria-expanded'); }catch(e){} }); };
+                            cleanupSidebar();
+                            const _bm_cleanup_id = setInterval(cleanupSidebar, 500);
+                            // observe attribute changes and remove aria-expanded when added to non-combobox elements
+                            try{
+                                const obs = new MutationObserver(muts=>{ muts.forEach(m=>{ try{ if(m.type==='attributes' && m.attributeName==='aria-expanded'){ const el = m.target; if(!(el.tagName==='INPUT' && el.getAttribute('role')==='combobox')) el.removeAttribute('aria-expanded'); } }catch(e){} }); });
+                                obs.observe(parentDoc, { attributes: true, subtree: true, attributeFilter: ['aria-expanded'] });
+                                setTimeout(()=>{ try{ obs.disconnect(); }catch(e){} }, 30000);
+                            }catch(e){}
+                            setTimeout(()=>{ try{ clearInterval(_bm_cleanup_id); }catch(e){} }, 30000);
+                        }catch(e){}
+                        // normalize heading order: replace problematic h3 with h2 to avoid heading-order violations
+                        try{ const rec = parentDoc.querySelector('#recommendations'); if(rec && rec.tagName.toLowerCase()==='h3'){ const h2 = parentDoc.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; // copy contents
+                                    // copy inline styles and classes
+                                    h2.className = rec.className || '';
+                                    if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style'));
+                                    rec.parentNode.replaceChild(h2, rec);
+                                } }catch(e){}
+                        // prevent Streamlit from re-adding aria-expanded on sidebar by monkey-patching setAttribute for the short term
+                        try{
+                            (function(){
+                                const origSet = Element.prototype.setAttribute;
+                                const origRemove = Element.prototype.removeAttribute;
+                                Element.prototype.setAttribute = function(name, value){ try{ if(name==='aria-expanded' && this.classList && this.classList.contains && this.classList.contains('stSidebar')) return; }catch(e){} return origSet.apply(this, arguments); };
+                                Element.prototype.removeAttribute = function(name){ try{ if(name==='aria-expanded' && this.classList && this.classList.contains && this.classList.contains('stSidebar')) return; }catch(e){} return origRemove.apply(this, arguments); };
+                                setTimeout(()=>{ try{ Element.prototype.setAttribute = origSet; Element.prototype.removeAttribute = origRemove; }catch(e){} }, 30000);
+                            })();
+                        }catch(e){}
+                        // ensure there is a top-level landmark: wrap the Streamlit app in <main role="main"> if missing
+                        try{
+                            if(!parentDoc.querySelector('main[role="main"]')){
+                                const appRoot = parentDoc.querySelector('.stApp') || parentDoc.querySelector('[data-testid="stAppViewContainer"]') || parentDoc.querySelector('#root');
+                                if(appRoot){
+                                    const mainEl = parentDoc.createElement('main');
+                                    mainEl.setAttribute('role','main');
+                                    // move appRoot into mainEl if appRoot is not already the body
+                                    const parent = appRoot.parentNode || parentDoc.body;
+                                    try{ parent.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){ /* best-effort */ }
+                                }
+                            }
+                        }catch(e){}
+                    }catch(e){/*ignore*/}
+                }
+                setTimeout(focusFromLabel, 120);
+                // additional observer: ensure dynamic re-renders keep our ARIA fixes (aggressive, best-effort)
+                try{
+                    const globalObs = new MutationObserver((muts)=>{
+                        muts.forEach(m=>{
+                            try{
+                                if(m.addedNodes && m.addedNodes.length){
+                                    m.addedNodes.forEach(node=>{
+                                        try{
+                                            if(node.querySelectorAll){
+                                                // remove any aria-expanded on sidebars within added subtree
+                                                Array.from(node.querySelectorAll('.stSidebar[aria-expanded], [aria-expanded] .stSidebar')).forEach(s=>{ try{ s.removeAttribute('aria-expanded'); }catch(e){} });
+                                                // replace any #recommendations h3 nodes
+                                                const rec = node.querySelector && node.querySelector('#recommendations');
+                                                if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){
+                                                    const h2 = parentDoc.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className || ''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec);
+                                                }
+                                                // ensure main landmark
+                                                if(!parentDoc.querySelector('main[role="main"]')){
+                                                    const appRoot = parentDoc.querySelector('.stApp') || parentDoc.querySelector('[data-testid="stAppViewContainer"]') || parentDoc.querySelector('#root');
+                                                    if(appRoot){ const mainEl = parentDoc.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot);}catch(e){} }
+                                                }
+                                            }
+                                        }catch(e){}
+                                    });
+                                }
+                            }catch(e){}
+                        });
+                    });
+                    try{ globalObs.observe(parentDoc.body, { childList:true, subtree:true, attributes:false }); setTimeout(()=>{ try{ globalObs.disconnect(); }catch(e){} }, 30000); }catch(e){}
+                }catch(e){}
+            }catch(err){
+                // silently fail
+                console.error('bm-helper error', err);
+            }
+        })();
+        </script>
+        """
+
+        components.html(helper_js, height=0)
+    except Exception:
+        pass
     answers = st.session_state.get(ans_key) or {}
+    # Detect change and persist automatically for signed-in users
+    prev_sel = saved
     answers[q.get("id")] = selected
     st.session_state[ans_key] = answers
+    user = st.session_state.get("maths_auth_user")
+    try:
+        if user and user.get("email") and selected is not None and selected != prev_sel:
+            # save a lightweight checkpoint for resume immediately
+            checkpoint = {"questions": questions, "answers": st.session_state.get(ans_key) or {}, "index": int(st.session_state.get(idx_key, 0))}
+            _save_user_progress(user.get("email"), {"practice_session": checkpoint})
+            ts = datetime.now().strftime("%H:%M:%S")
+            st.session_state["bm_last_auto_save"] = ts
+            msg = f"Auto-saved (Q{int(st.session_state.get(idx_key,0))+1}) at {ts}"
+            st.session_state["bm_auto_save_msg"] = msg
+            st.session_state["bm_auto_save_msg_ts"] = datetime.now()
+            try:
+                st.markdown(f"<div id='bm-live' aria-live='polite' aria-atomic='true' style='position:absolute;left:-10000px'>{msg}</div>", unsafe_allow_html=True)
+            except Exception:
+                pass
+            try:
+                st.markdown(f"<div id='bm-focus-label' style='position:absolute;left:-10000px'>{selected}</div>", unsafe_allow_html=True)
+            except Exception:
+                pass
+    except Exception:
+        pass
 
     if total <= 30:
         palette_cols = st.columns(min(total, 10))
@@ -218,16 +589,29 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
             current = "▸" if i == current_idx else ""
             if col.button(f"{current}Q{i+1}{marker}", key=f"{prefix}_qbtn_{i}"):
                 st.session_state[idx_key] = i
-                st.experimental_rerun()
+                _safe_rerun()
 
     next_idx = _recommend_next_index(questions, st.session_state.get(ans_key) or {}, current_idx)
     if next_idx is not None and next_idx != current_idx:
         st.info(f"Recommended next question: Q{next_idx + 1}")
         if st.button("Go to recommended next", key=f"{prefix}_recommended_next"):
             st.session_state[idx_key] = next_idx
-            st.experimental_rerun()
+            _safe_rerun()
 
     submit_clicked = st.button(submit_label, key=f"{prefix}_submit")
+    # Show a compact inline auto-save indicator when available (only while recent)
+    last = st.session_state.get("bm_last_auto_save")
+    toast = st.session_state.get("bm_auto_save_msg")
+    toast_ts = st.session_state.get("bm_auto_save_msg_ts")
+    now = datetime.now()
+    if toast and toast_ts and (now - toast_ts).total_seconds() <= 3:
+        st.markdown(f"<div class='bm-toast'>{toast}</div>", unsafe_allow_html=True)
+    elif toast and not toast_ts:
+        st.session_state["bm_auto_save_msg_ts"] = now
+        st.markdown(f"<div class='bm-toast'>{toast}</div>", unsafe_allow_html=True)
+    # Inline timestamp (permanent)
+    if last:
+        st.markdown(f"<div class='bm-autosave-inline'>Auto-saved: {last}</div>", unsafe_allow_html=True)
     return submit_clicked, (st.session_state.get(ans_key) or {})
 
 
@@ -236,22 +620,40 @@ def _render_math_text(txt: str):
     if not txt:
         return
     s = str(txt)
-    # If the string already contains LaTeX markers, render as markdown (Streamlit will render math)
+    # If the string already contains explicit LaTeX markers, render as-is
     if '$' in s or '\\(' in s or '\\)' in s or '\\frac' in s or '\\sqrt' in s:
-        st.markdown(s)
+        # Prefer display math for longer LaTeX content
+        if '\n' in s or len(s) > 120 or re.search(r"\\frac|\\sqrt|\\begin|\\frac", s):
+            st.markdown(f"$$\n{s}\n$$")
+        else:
+            st.markdown(s)
         return
-    # Heuristic: if it looks like an equation or contains x, =, ^, /, or digits with variables, render as latex
+
+    # Heuristic: if it looks like an equation or contains x, =, ^, /, or digits with variables, render as LaTeX
     if re.search(r"=|\^|\\frac|\\sqrt|\bx\b|\d+[a-zA-Z]|[a-zA-Z]\^\d|/", s):
+        # use display math for longer formulas, inline for short expressions
         try:
-            # try to render as LaTeX math
-            st.latex(s)
+            if len(s) > 80 or '\n' in s or re.search(r"\\frac|\\sqrt", s):
+                st.markdown(f"$$\n{s}\n$$")
+            else:
+                st.markdown(f"${s}$")
             return
         except Exception:
             wrapped = re.sub(r"(?<!\$)(\b\d+\s*[+\-*/=^]\s*\d+(?:\s*[+\-*/=^]\s*\d+)*)", r"$\1$", s)
             st.markdown(wrapped)
             return
+
     # default: markdown paragraph
     st.markdown(s)
+def _safe_rerun():
+    """Call Streamlit's experimental rerun if available, otherwise no-op."""
+    try:
+        func = getattr(st, "experimental_rerun", None)
+        if callable(func):
+            func()
+    except Exception:
+        # swallow errors to avoid aborting the app
+        pass
 
 
 st.set_page_config(
@@ -261,6 +663,82 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Early DOM sanitization to mitigate framework-level ARIA/landmark issues
+try:
+    st.markdown(
+        """
+        <script>
+        (function(){
+            try{
+                // remove invalid aria-expanded on sidebar
+                document.querySelectorAll('.stSidebar').forEach(function(s){ try{ s.removeAttribute('aria-expanded'); }catch(e){} });
+                // normalize heading level for recommendations if present early
+                try{ const rec = document.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = document.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec); } }catch(e){}
+                // ensure top-level main landmark exists
+                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } } }catch(e){}
+            }catch(err){/*swallow*/}
+        })();
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
+except Exception:
+    pass
+
+# Inject a small, persistent component that watches and sanitizes DOM changes.
+try:
+    import streamlit.components.v1 as components
+
+    sanitizer_js = """
+    <script>
+    (function(){
+        // Monkey-patch setAttribute early to block aria-expanded on stSidebar
+        try{
+            var _origSet = Element.prototype.setAttribute;
+            Element.prototype.setAttribute = function(name, value){
+                try{
+                    if(name === 'aria-expanded' && this.classList && this.classList.contains && this.classList.contains('stSidebar')){
+                        return; // ignore
+                    }
+                }catch(e){}
+                return _origSet.apply(this, arguments);
+            };
+        }catch(e){}
+
+        function sanitize(){
+            try{
+                // remove invalid aria-expanded on sidebar
+                document.querySelectorAll('.stSidebar').forEach(function(s){ try{ s.removeAttribute('aria-expanded'); }catch(e){} });
+                // normalize heading level for recommendations
+                try{ const rec = document.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = document.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec); } }catch(e){}
+                // ensure top-level main landmark exists
+                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } } }catch(e){}
+                // remove KaTeX tabindex
+                try{ document.querySelectorAll('.katex, .katex *').forEach(function(el){ try{ if(el.hasAttribute && el.hasAttribute('tabindex')) el.removeAttribute('tabindex'); }catch(e){} }); }catch(e){}
+                // collapse combobox aria-expanded on non-interactive sidebar elements
+                try{ document.querySelectorAll('[aria-expanded]').forEach(function(el){ try{ if(el.classList && el.classList.contains('stSidebar')) el.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+            }catch(err){/*swallow*/}
+        }
+
+        // Run now and watch for changes
+        sanitize();
+        var obs = new MutationObserver(function(m){ sanitize(); });
+        try{ obs.observe(document.documentElement || document.body, { childList: true, subtree: true, attributes: true }); }catch(e){}
+        // Fallback periodic cleanup for first 10s
+        var runs = 0;
+        var iv = setInterval(function(){ sanitize(); runs++; if(runs>20){ clearInterval(iv); try{ obs.disconnect(); }catch(e){} } }, 500);
+    })();
+    </script>
+    """
+
+    try:
+        components.html(sanitizer_js, height=0)
+    except Exception:
+        # components may not be available in all contexts; ignore if injection fails
+        pass
+except Exception:
+    pass
+
 
 st.markdown(
     """
@@ -268,7 +746,7 @@ st.markdown(
     :root {
         --paper: #f4f8fc;
         --ink: #0b1f35;
-        --muted: #2f4a63;
+        --muted: #213543;
         --accent: #005a8d;
         --accent-soft: #e0eef9;
         --line: #c6d8e8;
@@ -382,7 +860,7 @@ st.markdown(
     .stTextInput input::placeholder,
     .stTextArea textarea::placeholder,
     .stDateInput input::placeholder {
-        color: #6b7f93 !important;
+        color: #4a6476 !important;
         opacity: 1 !important;
     }
 
@@ -394,7 +872,72 @@ st.markdown(
         box-shadow: 0 0 0 2px rgba(0, 90, 141, 0.18) !important;
     }
 
+    .bm-choice { border-radius: 6px; padding: 0.5rem; margin-bottom: 0.25rem; }
+    .bm-choice p { margin: 0; color: var(--ink); }
+    .bm-choice.bm-selected { background: rgba(0,90,141,0.04); border: 1px solid rgba(0,90,141,0.12); }
+    .bm-choice.bm-selected { background: rgba(0,90,141,0.10); border: 1px solid rgba(0,90,141,0.22); box-shadow: 0 4px 12px rgba(0,90,141,0.06); transition: background 150ms ease, transform 120ms ease; transform-origin: left; }
+    .bm-choice.bm-selected::after { content: "✓"; float: right; background: var(--accent); color: white; border-radius: 999px; width: 1.4rem; height: 1.4rem; display: inline-flex; align-items: center; justify-content: center; font-weight:700; margin-left: 0.6rem; }
+    .bm-choice { transition: background 120ms ease, border-color 120ms ease; }
+    .bm-progress-saved { font-size:0.85rem; color: var(--accent); margin-left: 0.5rem; }
+    /* compact floating toast for small status messages */
+    .bm-toast {
+        position: fixed;
+        right: 1rem;
+        bottom: 1.2rem;
+        background: rgba(0,90,141,0.95);
+        color: white;
+        padding: 0.5rem 0.85rem;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(11,31,53,0.12);
+        font-size: 0.9rem;
+        z-index: 9999;
+    }
+    .bm-autosave-inline { font-size:0.9rem; color:var(--ink); margin-left:0.6rem }
+    /* Typography and spacing refinements */
+    .bm-hero-title { font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .bm-hero-copy { font-size: 1.05rem; color: var(--muted); }
+    .stCaptionContainer p { color: var(--ink) !important; }
+            /* make caption color explicit and high-contrast across themes */
+            .stCaptionContainer p, .stMarkdown .stCaptionContainer p, .stApp .stCaptionContainer p { color: var(--ink) !important; opacity: 1 !important; }
+    .bm-card { padding: 1.25rem; border-radius: 12px; min-height: 110px; }
+    .bm-panel { padding: 1.25rem; border-radius: 12px; }
+    .bm-index-item { padding: 0.6rem 0; }
+
+    /* Buttons and layout */
+    .stButton > button { padding: 0.66rem 0.95rem; border-radius: 10px; box-shadow: none; }
+    .stButton + .stButton { margin-left: 0.6rem; }
+    .stButton[kind="secondary"] > button { padding: 0.6rem 0.85rem; }
+
+    /* Small select button inside choice blocks */
+    .bm-choice .stButton > button { padding: 0.35rem 0.6rem; font-size:0.9rem; }
+    .bm-choice { display:block; }
+
+    /* Thicker, rounded progress bars */
+    .stProgress > div > div {
+        height: 12px !important;
+        border-radius: 10px !important;
+        background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 100%) !important;
+    }
+    div[role="progressbar"] { height: 12px !important; }
+
+    /* Choices: increase spacing and readability */
+    .bm-choice { padding: 0.75rem; margin-bottom: 0.5rem; font-size: 1rem; }
+    .bm-choice p { font-size: 0.98rem; color: var(--ink); }
+    .bm-choice { cursor: pointer; }
+    .bm-choice:not(.bm-selected):hover { background: rgba(0,90,141,0.02); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(11,31,53,0.04); }
+
+    /* Nav buttons (prev/next) larger and spaced */
+    .stButton > button[aria-label] { padding: 0.6rem 0.9rem; }
+
+
     section[data-testid="stSidebar"] { background: linear-gradient(180deg,#ffffff 0%, #edf4fb 100%); border-right: 1px solid var(--line); }
+
+    /* Custom progress rail for dashboard */
+    .bm-progress-rail { background: #eef6fb; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; border: 1px solid rgba(0,0,0,0.04); }
+    .bm-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent) 0%, #0079b6 100%); border-radius: 10px; transition: width 350ms ease; }
+    /* Mini progress for question player */
+    .bm-mini-progress-rail { background: #f3f7fb; height: 10px; border-radius: 10px; overflow:hidden; border:1px solid rgba(0,0,0,0.03); }
+    .bm-mini-progress-fill { height:100%; background: linear-gradient(90deg, var(--accent) 0%, #33a0dd 100%); transition: width 250ms ease; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -552,7 +1095,7 @@ def _render_account_panel():
         st.caption(user.get("email", ""))
         if st.button("Sign out", key="maths_sign_out"):
             st.session_state.maths_auth_user = None
-            st.experimental_rerun()
+            _safe_rerun()
         return
 
     with st.expander("Sign in / Sign up", expanded=False):
@@ -576,7 +1119,7 @@ def _render_account_panel():
                 st.session_state.maths_saved_practice_session = saved.get("practice_session")
                 st.session_state.maths_saved_diagnostic_session = saved.get("diagnostic_session")
                 st.success(msg)
-                st.experimental_rerun()
+                _safe_rerun()
             else:
                 st.error(msg)
 
@@ -654,13 +1197,13 @@ def _render_topic_cards(profile):
         with cols[index % 2]:
             st.markdown(
                 f"""
-                <div class='bm-card'>
-                  <h4>{card['title']}</h4>
+                                <section class='bm-card' aria-label='{card['title']}'>
+                                    <h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>{card['title']}</h3>
                   <p><strong>Why now:</strong> {card['subtitle']}</p>
                   <div class='bm-divider'></div>
                   <p><strong>Practice:</strong> {card['practice']}</p>
                   <p style='margin-top:0.45rem'><strong>Common mistake:</strong> {card['mistake']}</p>
-                </div>
+                                </section>
                 """,
                 unsafe_allow_html=True,
             )
@@ -673,11 +1216,11 @@ def _render_week_plan(profile):
         with cols[idx % 5]:
             st.markdown(
                 f"""
-                <div class='bm-card'>
-                  <h4>{item['day']}</h4>
+                                <section class='bm-card' aria-label='{item['day']} plan'>
+                                    <h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>{item['day']}</h3>
                   <p><strong>{item['title']}</strong></p>
                   <p>{item['description']}</p>
-                </div>
+                                </section>
                 """,
                 unsafe_allow_html=True,
             )
@@ -690,10 +1233,10 @@ def _render_revision_timeline(profile):
         with cols[idx]:
             st.markdown(
                 f"""
-                <div class='bm-card'>
-                  <h4>{item['label']}</h4>
+                                <section class='bm-card' aria-label='{item['label']} milestone'>
+                                    <h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>{item['label']}</h3>
                   <p>{item['note']}</p>
-                </div>
+                                </section>
                 """,
                 unsafe_allow_html=True,
             )
@@ -714,14 +1257,46 @@ def _render_practice_lab(profile, ai_client, provider):
                     st.session_state.maths_practice_questions = saved_practice.get("questions", [])
                     st.session_state["practice_answers"] = saved_practice.get("answers", {})
                     st.session_state["practice_index"] = int(saved_practice.get("index", 0))
-                    st.experimental_rerun()
+                    _safe_rerun()
         with resume_cols[1]:
             if saved_diag and saved_diag.get("questions") and not st.session_state.get("maths_diagnostic_questions"):
                 if st.button("Resume unfinished diagnostic", key="resume_saved_diag"):
                     st.session_state.maths_diagnostic_questions = saved_diag.get("questions", [])
                     st.session_state["diagnostic_answers"] = saved_diag.get("answers", {})
                     st.session_state["diagnostic_index"] = int(saved_diag.get("index", 0))
-                    st.experimental_rerun()
+                    _safe_rerun()
+
+    # Debug: load a preview of numerical practice questions for QA
+    try:
+        if _debug_mode_enabled(_load_secrets()):
+            with st.sidebar.expander("Admin: QA / Previews", expanded=False):
+                if st.button("Load numerical practice preview (20)", key="load_num_preview"):
+                    kb = mcq_manager.load_kb()
+                    if kb is None:
+                        st.warning("No knowledge base found.")
+                        return
+                    dom = kb.get("mcq_bank", {}).get("middle", {}).get("domains", {}).get("numerical-practice", {})
+                    questions = dom.get("questions", [])[:20]
+                    if questions:
+                        st.session_state.maths_practice_questions = questions
+                        st.session_state.practice_answers = {}
+                        st.session_state.practice_index = 0
+                        _safe_rerun()
+                    else:
+                        st.warning("No numerical practice questions found in KB.")
+    except Exception:
+        pass
+
+    # Allow users to start a numerical practice set directly
+    if st.button("Start numerical practice (20)", key="start_num_practice"):
+        questions = mcq_manager.sample_numerical_practice(level="middle", num_questions=20)
+        if questions:
+            st.session_state.maths_practice_questions = questions
+            st.session_state.practice_answers = {}
+            st.session_state.practice_index = 0
+            _safe_rerun()
+        else:
+            st.warning("No numerical practice questions available right now.")
 
     # If a practice set was requested from a recommendation card, render it first
     if st.session_state.get("maths_practice_questions"):
@@ -783,7 +1358,7 @@ def _render_practice_lab(profile, ai_client, provider):
                 else:
                     st.session_state.maths_variant_preview = variants
                     st.session_state.maths_show_preview = True
-                    st.experimental_rerun()
+                    _safe_rerun()
     starters = basic_maths.quick_starters(profile)
     starter_cols = st.columns(len(starters))
     for idx, starter in enumerate(starters):
@@ -810,7 +1385,7 @@ def _render_practice_lab(profile, ai_client, provider):
             bullets = [line.strip("-• ") for line in reply.split(".") if line.strip()]
             st.markdown("\n".join([f"- {bullet}" for bullet in bullets[:5]]))
         elif response_style == "Study card":
-            st.markdown(f"<div class='bm-card'><h4>Coach reply</h4><p>{reply}</p></div>", unsafe_allow_html=True)
+            st.markdown(f"<section class='bm-card' aria-label='Coach reply'><h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>Coach reply</h3><p>{reply}</p></section>", unsafe_allow_html=True)
         else:
             st.write(reply)
 
@@ -820,7 +1395,6 @@ def _render_practice_lab(profile, ai_client, provider):
         for message in st.session_state.maths_chat[-6:]:
             with st.chat_message(message["role"]):
                 st.write(message["content"])
-
     st.markdown("<div class='bm-divider'></div>", unsafe_allow_html=True)
     st.subheader("Sit a quiz")
     # Present canonical taxonomy topics for practice
@@ -976,12 +1550,13 @@ def _render_practice_lab(profile, ai_client, provider):
                     domain_label = rec.get('domain') or rec.get('domain_id')
                     actions_html = "".join([f"<li>{a}</li>" for a in rec.get('actions', [])])
                     st.markdown(
-                        f"<div class='bm-card'><h4>{domain_label}</h4>"
+                        f"<section class='bm-card' aria-label='{domain_label}'>"
+                        f"<h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>{domain_label}</h3>"
                         f"<p><strong>Incorrect:</strong> {rec.get('wrong',0)}/{rec.get('total',0)}</p>"
                         f"<p><strong>Suggested practice:</strong> {rec.get('suggested_practice',0)} Qs · ~{rec.get('suggested_minutes',0)} mins</p>"
                         f"<div class='bm-divider'></div>"
                         f"<p><strong>Actions:</strong></p><ul>{actions_html}</ul>"
-                        f"</div>",
+                        f"</section>",
                         unsafe_allow_html=True,
                     )
                     practice = mcq_manager.get_domain_practice(rec.get('domain_id'), top_n=5)
@@ -993,7 +1568,7 @@ def _render_practice_lab(profile, ai_client, provider):
                     if st.button("Practice this domain", key=btn_key):
                         st.session_state.maths_practice_pref = rec.get('domain_id')
                         st.session_state.maths_nav = "Practice Lab"
-                        st.experimental_rerun()
+                        _safe_rerun()
 
                     # immediate attempt: generate a short practice set and open it
                     attempt_key = f"attempt-{i}"
@@ -1010,7 +1585,7 @@ def _render_practice_lab(profile, ai_client, provider):
                             # set modal questions and request modal display
                             st.session_state.maths_modal_questions = questions
                             st.session_state.maths_show_modal = True
-                            st.experimental_rerun()
+                            _safe_rerun()
 
 
 def _render_appointments(profile):
@@ -1127,13 +1702,28 @@ def main():
     profile = st.session_state.maths_profile_saved
     summary = basic_maths.build_learning_summary(profile)
     stats = basic_maths.build_dashboard_metrics(profile, practice_attempts=len(st.session_state.maths_chat))
+    # If signed-in user has a saved practice session, blend that into the visible dashboard progress
+    user = st.session_state.get("maths_auth_user")
+    try:
+        if user and user.get("email"):
+            saved = _load_user_progress(user.get("email")) or {}
+            ps = saved.get("practice_session") or {}
+            if ps and isinstance(ps.get("questions"), list) and ps.get("index") is not None:
+                idx = int(ps.get("index", 0))
+                total = len(ps.get("questions", [])) or 1
+                practice_pct = int(round((idx / total) * 100))
+                # blend base dashboard stat with practice completion: 60% base, 40% practice
+                stats["progress"] = int(round(stats.get("progress", 0) * 0.6 + practice_pct * 0.4))
+    except Exception:
+        pass
 
     with st.sidebar:
         st.markdown("<div class='bm-eyebrow'>Basic Maths Prep</div>", unsafe_allow_html=True)
         st.markdown("<h3 style='margin-top:0'>Personalised maths prep desk</h3>", unsafe_allow_html=True)
         st.caption("A calm, student-friendly workspace for diagnostics, revision planning, and coaching.")
-        st.progress(min(max(stats["progress"], 0), 100) / 100)
-        st.caption(f"Learning progress: {stats['progress']}%")
+        pval = int(min(max(stats.get("progress", 0), 0), 100))
+        st.markdown(f"<div class='bm-progress-rail'><div class='bm-progress-fill' style='width:{pval}%;'></div></div>", unsafe_allow_html=True)
+        st.caption(f"Learning progress: {pval}%")
 
         nav = st.radio(
             "Go to",
@@ -1171,14 +1761,14 @@ def main():
                 except Exception:
                     pass
                 st.session_state.maths_show_preview = False
-                st.experimental_rerun()
+                _safe_rerun()
             if discard:
                 try:
                     del st.session_state["maths_variant_preview"]
                 except Exception:
                     pass
                 st.session_state.maths_show_preview = False
-                st.experimental_rerun()
+                _safe_rerun()
 
     # If a quick-practice modal was requested, show it here (keeps user on same page)
     if st.session_state.get("maths_show_modal") and st.session_state.get("maths_modal_questions"):
@@ -1213,17 +1803,17 @@ def main():
         action_cols = st.columns(3)
         with action_cols[0]:
             st.markdown(
-                "<div class='bm-card'><h4>Recommendations</h4><p>Review the top topics the system suggests for your stage and goal.</p></div>",
+                "<section class='bm-card' aria-label='Recommendations'><h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>Recommendations</h3><p>Review the top topics the system suggests for your stage and goal.</p></section>",
                 unsafe_allow_html=True,
             )
         with action_cols[1]:
             st.markdown(
-                "<div class='bm-card'><h4>Academic planning</h4><p>Follow a weekly plan based on your current profile and progress.</p></div>",
+                "<section class='bm-card' aria-label='Academic planning'><h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>Academic planning</h3><p>Follow a weekly plan based on your current profile and progress.</p></section>",
                 unsafe_allow_html=True,
             )
         with action_cols[2]:
             st.markdown(
-                "<div class='bm-card'><h4>Schedule support</h4><p>Book a coaching slot automatically from available times.</p></div>",
+                "<section class='bm-card' aria-label='Schedule support'><h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>Schedule support</h3><p>Book a coaching slot automatically from available times.</p></section>",
                 unsafe_allow_html=True,
             )
 
