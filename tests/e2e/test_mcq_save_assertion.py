@@ -68,12 +68,12 @@ def test_practice_flow_wait_for_save():
         page.click('button:has-text("Next")')
         page.wait_for_selector('text=Question 2 of')
         page.click('.bm-choice')
-        try:
-            page.wait_for_selector('text=Auto-saved', timeout=7000)
-        except Exception:
-            try:
-                page.wait_for_selector('[role="status"]', timeout=5000)
-            except Exception:
-                pass
+
+        # wait briefly for server-side save to flush and assert persisted progress
+        time.sleep(1.2)
+        import json
+        assert PROGRESS_FILE.exists(), 'progress file not found'
+        data = json.loads(PROGRESS_FILE.read_text(encoding='utf-8'))
+        assert TEST_EMAIL in data, f'user progress not saved for {TEST_EMAIL}'
 
         browser.close()
