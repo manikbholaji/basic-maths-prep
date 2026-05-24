@@ -430,6 +430,10 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
                         }
                         // remove hint to avoid repeat
                         hint.remove();
+                        // remove tabindex from KaTeX display blocks to avoid scrollable-region-focusable issues
+                        try{ Array.from(parentDoc.querySelectorAll('.katex-display')).forEach(el=>{ try{ el.removeAttribute('tabindex'); }catch(e){} }); }catch(e){}
+                        // ensure combobox inputs have aria-expanded to satisfy required ARIA attributes
+                        try{ Array.from(parentDoc.querySelectorAll('input[role="combobox"]')).forEach(inp=>{ try{ if(!inp.hasAttribute('aria-expanded')) inp.setAttribute('aria-expanded','false'); }catch(e){} }); }catch(e){}
                     }catch(e){/*ignore*/}
                 }
                 setTimeout(focusFromLabel, 120);
@@ -718,6 +722,7 @@ st.markdown(
     /* Typography and spacing refinements */
     .bm-hero-title { font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
     .bm-hero-copy { font-size: 1.05rem; color: var(--muted); }
+    .stCaptionContainer p { color: var(--ink) !important; }
     .bm-card { padding: 1.25rem; border-radius: 12px; min-height: 110px; }
     .bm-panel { padding: 1.25rem; border-radius: 12px; }
     .bm-index-item { padding: 0.6rem 0; }
