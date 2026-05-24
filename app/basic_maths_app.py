@@ -251,9 +251,16 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
         qid = q.get('id')
         with st.container():
             cls = "bm-choice bm-selected" if is_sel else "bm-choice"
-            # render the choice block with semantic role and aria-checked
+            # compute an accessible name for the radio from the label and plain text of the choice
+            try:
+                import re as _re
+                _plain = _re.sub(r'<[^>]*>', '', str(choice)).strip()
+                _plain = _plain.replace('"', '&quot;')
+            except Exception:
+                _plain = str(choice)
             aria_checked = 'true' if is_sel else 'false'
-            st.markdown(f"<div class=\"{cls}\" role='radio' aria-checked='{aria_checked}' tabindex='0'>", unsafe_allow_html=True)
+            aria_label = f"Choice {labels[idx_c]}: {_plain[:140]}"
+            st.markdown(f"<div class=\"{cls}\" role='radio' aria-checked='{aria_checked}' aria-label=\"{aria_label}\" tabindex='0'>", unsafe_allow_html=True)
             # Show label and content side-by-side using a simple table for alignment
             try:
                 cols = st.columns([0.12, 1, 0.26])
@@ -389,7 +396,6 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
                 try{
                     const app = parentDoc.querySelector('.stApp');
                     if(app) app.setAttribute('role','main');
-                    try{ parentDoc.body.setAttribute('role','main'); }catch(e){}
                 }catch(e){}
                 try{
                     // replace existing and newly added h4 tags with h3 to improve heading order
