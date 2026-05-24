@@ -131,6 +131,21 @@ def _goal_key(goal: object) -> str:
     return "exam prep"
 
 
+def _profile_completeness(profile: Dict[str, object]) -> int:
+    fields = [
+        "student_name",
+        "email",
+        "grade",
+        "board",
+        "goal",
+        "city",
+        "preferred_study_time",
+        "pace",
+    ]
+    filled = sum(1 for key in fields if bool(_clean_text(profile.get(key))))
+    return int(round((filled / len(fields)) * 100))
+
+
 def profile_summary(profile: Dict[str, object]) -> str:
     grade = _clean_text(profile.get("grade") or "Class 8")
     board = _clean_text(profile.get("board") or "Board")
@@ -214,11 +229,21 @@ def _build_reason(topic: Dict[str, object], profile: Dict[str, object]) -> str:
     return ", ".join(reasons[:2]).capitalize()
 
 
-def build_dashboard_metrics(profile: Dict[str, object], practice_attempts: int = 0) -> Dict[str, object]:
+def build_dashboard_metrics(profile: Dict[str, object], practice_attempts: int = 0, progress_override: int | None = None) -> Dict[str, object]:
     weak_topics = list(profile.get("weak_topics", []) or [])
     stage = _stage_for_grade(profile.get("grade"))
-    progress = 72 if stage == "primary" else 65 if stage == "middle" else 58
-    progress = max(30, progress - (len(weak_topics) * 3))
+    completeness = _profile_completeness(profile)
+    stage_bonus = {"primary": 20, "middle": 25, "senior": 30}.get(stage, 25)
+    practice_bonus = min(practice_attempts * 4, 30)
+    progress = int(round((completeness * 0.20) + stage_bonus + practice_bonus - (len(weak_topics) * 3)))
+    progress = max(18, min(100, progress))
+    # allow external override (e.g., saved session progress) to nudge dashboard metric
+    if isinstance(progress_override, int):
+        try:
+            ov = int(progress_override)
+            progress = max(0, min(100, ov))
+        except Exception:
+            pass
     accuracy = max(42, min(98, 88 - len(weak_topics) * 4 + (practice_attempts // 2)))
     next_level = {
         "primary": "Middle-school confidence",

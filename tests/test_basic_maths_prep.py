@@ -30,6 +30,25 @@ def test_week_plan_has_five_days():
     assert all("description" in item for item in plan)
 
 
+def test_dashboard_progress_is_dynamic_for_middle_stage_profile():
+    profile = {
+        "grade": "Class 8",
+        "board": "CBSE",
+        "goal": "Exam prep",
+        "preferred_study_time": "Morning",
+        "pace": "Balanced",
+    }
+
+    stats = basic_maths.build_dashboard_metrics(profile, practice_attempts=0)
+
+    assert isinstance(stats["progress"], int)
+    assert stats["progress"] < 65
+    assert stats["progress"] >= 18
+
+    practice_stats = basic_maths.build_dashboard_metrics(profile, practice_attempts=4)
+    assert practice_stats["progress"] > stats["progress"]
+
+
 def test_generate_math_reply_includes_profile_context_without_ai_client():
     profile = {
         "student_name": "Aanya",

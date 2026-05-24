@@ -675,7 +675,7 @@ try:
                 // normalize heading level for recommendations if present early
                 try{ const rec = document.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = document.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec); } }catch(e){}
                 // ensure top-level main landmark exists
-                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } } }catch(e){}
+                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } else { try{ document.body.setAttribute('role','main'); }catch(e){} } } }catch(e){}
             }catch(err){/*swallow*/}
         })();
         </script>
@@ -712,7 +712,9 @@ try:
                 // normalize heading level for recommendations
                 try{ const rec = document.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = document.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec); } }catch(e){}
                 // ensure top-level main landmark exists
-                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } } }catch(e){}
+                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } else { try{ document.body.setAttribute('role','main'); }catch(e){} } } }catch(e){}
+                // make toolbar action buttons discoverable
+                try{ document.querySelectorAll('.stToolbarActionButton').forEach(function(btn){ try{ if(!btn.hasAttribute('aria-label')){ const label = btn.getAttribute('title') || btn.textContent.trim(); if(label){ btn.setAttribute('aria-label', label); } else { btn.setAttribute('aria-label', 'Toolbar action'); } } }catch(e){} }); }catch(e){}
                 // remove KaTeX tabindex
                 try{ document.querySelectorAll('.katex, .katex *').forEach(function(el){ try{ if(el.hasAttribute && el.hasAttribute('tabindex')) el.removeAttribute('tabindex'); }catch(e){} }); }catch(e){}
                 // collapse combobox aria-expanded on non-interactive sidebar elements
