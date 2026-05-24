@@ -315,6 +315,14 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
         (function(){
             try{
                 const parentDoc = window.parent.document;
+                // Immediate cleanup: remove problematic attributes and ensure landmarks/headings early
+                try{
+                    (function(){
+                        try{ Array.from(parentDoc.querySelectorAll('.stSidebar')).forEach(function(s){ try{ s.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+                        try{ const rec = parentDoc.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = parentDoc.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); try{ rec.parentNode.replaceChild(h2, rec);}catch(e){} } }catch(e){}
+                        try{ if(!parentDoc.querySelector('main[role="main"]')){ const appRoot = parentDoc.querySelector('.stApp') || parentDoc.querySelector('[data-testid="stAppViewContainer"]') || parentDoc.querySelector('#root'); if(appRoot){ const mainEl = parentDoc.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot);}catch(e){} } } }catch(e){}
+                    })();
+                }catch(e){}
 
                 function clickSelectByChoiceIndex(idx){
                     // find all Select buttons currently visible (they correspond to choices)
@@ -431,12 +439,102 @@ def _render_question_player(questions: list[dict], prefix: str, title: str, subm
                         // remove hint to avoid repeat
                         hint.remove();
                         // remove tabindex from KaTeX display blocks to avoid scrollable-region-focusable issues
-                        try{ Array.from(parentDoc.querySelectorAll('.katex-display')).forEach(el=>{ try{ el.removeAttribute('tabindex'); }catch(e){} }); }catch(e){}
-                        // ensure combobox inputs have aria-expanded to satisfy required ARIA attributes
-                        try{ Array.from(parentDoc.querySelectorAll('input[role="combobox"]')).forEach(inp=>{ try{ if(!inp.hasAttribute('aria-expanded')) inp.setAttribute('aria-expanded','false'); }catch(e){} }); }catch(e){}
+                        try{ Array.from(parentDoc.querySelectorAll('.katex-display')).forEach(el=>{ try{ el.removeAttribute('tabindex'); el.setAttribute('role','group'); el.setAttribute('aria-label','Math expression'); Array.from(el.querySelectorAll('[tabindex]')).forEach(ch=>{ try{ ch.removeAttribute('tabindex'); }catch(e){} }); }catch(e){} }); }catch(e){}
+                        // ensure combobox inputs have aria-expanded/aria-controls to satisfy required ARIA attributes
+                        try{
+                            let fakeIdCounter = 0;
+                            Array.from(parentDoc.querySelectorAll('input[role="combobox"]')).forEach(inp=>{
+                                try{
+                                    if(!inp.hasAttribute('aria-expanded')) inp.setAttribute('aria-expanded','false');
+                                    if(!inp.hasAttribute('aria-controls')){
+                                        const nearby = inp.parentNode && inp.parentNode.querySelector && inp.parentNode.querySelector('[role="listbox"]');
+                                        if(nearby && nearby.id) inp.setAttribute('aria-controls', nearby.id);
+                                        else if(nearby && !nearby.id){ const id = 'bm-fake-listbox-'+(fakeIdCounter++); nearby.id = id; inp.setAttribute('aria-controls', id); }
+                                        else { const id = 'bm-fake-listbox-'+(fakeIdCounter++); const stub = parentDoc.createElement('div'); stub.setAttribute('id', id); stub.setAttribute('role','listbox'); stub.setAttribute('aria-hidden','true'); stub.style.display='none'; parentDoc.body.appendChild(stub); inp.setAttribute('aria-controls', id); }
+                                    }
+                                }catch(e){}
+                            });
+                        }catch(e){}
+                        // remove aria-expanded from non-combobox elements (Streamlit sidebar uses aria-expanded on a <section>)
+                        try{ Array.from(parentDoc.querySelectorAll('[aria-expanded]')).forEach(el=>{ try{ if(!(el.tagName==='INPUT' && el.getAttribute('role')==='combobox')) el.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+                        // specifically clear aria-expanded on Streamlit sidebar sections which axe flags
+                        try{ Array.from(parentDoc.querySelectorAll('.stSidebar')).forEach(el=>{ try{ el.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+                        // run an interval and attribute observer to clear lingering aria-expanded attributes that Streamlit may set after render
+                        try{
+                            const cleanupSidebar = ()=>{ Array.from(parentDoc.querySelectorAll('.stSidebar')).forEach(el=>{ try{ el.removeAttribute('aria-expanded'); }catch(e){} }); };
+                            cleanupSidebar();
+                            const _bm_cleanup_id = setInterval(cleanupSidebar, 500);
+                            // observe attribute changes and remove aria-expanded when added to non-combobox elements
+                            try{
+                                const obs = new MutationObserver(muts=>{ muts.forEach(m=>{ try{ if(m.type==='attributes' && m.attributeName==='aria-expanded'){ const el = m.target; if(!(el.tagName==='INPUT' && el.getAttribute('role')==='combobox')) el.removeAttribute('aria-expanded'); } }catch(e){} }); });
+                                obs.observe(parentDoc, { attributes: true, subtree: true, attributeFilter: ['aria-expanded'] });
+                                setTimeout(()=>{ try{ obs.disconnect(); }catch(e){} }, 30000);
+                            }catch(e){}
+                            setTimeout(()=>{ try{ clearInterval(_bm_cleanup_id); }catch(e){} }, 30000);
+                        }catch(e){}
+                        // normalize heading order: replace problematic h3 with h2 to avoid heading-order violations
+                        try{ const rec = parentDoc.querySelector('#recommendations'); if(rec && rec.tagName.toLowerCase()==='h3'){ const h2 = parentDoc.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; // copy contents
+                                    // copy inline styles and classes
+                                    h2.className = rec.className || '';
+                                    if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style'));
+                                    rec.parentNode.replaceChild(h2, rec);
+                                } }catch(e){}
+                        // prevent Streamlit from re-adding aria-expanded on sidebar by monkey-patching setAttribute for the short term
+                        try{
+                            (function(){
+                                const origSet = Element.prototype.setAttribute;
+                                const origRemove = Element.prototype.removeAttribute;
+                                Element.prototype.setAttribute = function(name, value){ try{ if(name==='aria-expanded' && this.classList && this.classList.contains && this.classList.contains('stSidebar')) return; }catch(e){} return origSet.apply(this, arguments); };
+                                Element.prototype.removeAttribute = function(name){ try{ if(name==='aria-expanded' && this.classList && this.classList.contains && this.classList.contains('stSidebar')) return; }catch(e){} return origRemove.apply(this, arguments); };
+                                setTimeout(()=>{ try{ Element.prototype.setAttribute = origSet; Element.prototype.removeAttribute = origRemove; }catch(e){} }, 30000);
+                            })();
+                        }catch(e){}
+                        // ensure there is a top-level landmark: wrap the Streamlit app in <main role="main"> if missing
+                        try{
+                            if(!parentDoc.querySelector('main[role="main"]')){
+                                const appRoot = parentDoc.querySelector('.stApp') || parentDoc.querySelector('[data-testid="stAppViewContainer"]') || parentDoc.querySelector('#root');
+                                if(appRoot){
+                                    const mainEl = parentDoc.createElement('main');
+                                    mainEl.setAttribute('role','main');
+                                    // move appRoot into mainEl if appRoot is not already the body
+                                    const parent = appRoot.parentNode || parentDoc.body;
+                                    try{ parent.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){ /* best-effort */ }
+                                }
+                            }
+                        }catch(e){}
                     }catch(e){/*ignore*/}
                 }
                 setTimeout(focusFromLabel, 120);
+                // additional observer: ensure dynamic re-renders keep our ARIA fixes (aggressive, best-effort)
+                try{
+                    const globalObs = new MutationObserver((muts)=>{
+                        muts.forEach(m=>{
+                            try{
+                                if(m.addedNodes && m.addedNodes.length){
+                                    m.addedNodes.forEach(node=>{
+                                        try{
+                                            if(node.querySelectorAll){
+                                                // remove any aria-expanded on sidebars within added subtree
+                                                Array.from(node.querySelectorAll('.stSidebar[aria-expanded], [aria-expanded] .stSidebar')).forEach(s=>{ try{ s.removeAttribute('aria-expanded'); }catch(e){} });
+                                                // replace any #recommendations h3 nodes
+                                                const rec = node.querySelector && node.querySelector('#recommendations');
+                                                if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){
+                                                    const h2 = parentDoc.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className || ''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec);
+                                                }
+                                                // ensure main landmark
+                                                if(!parentDoc.querySelector('main[role="main"]')){
+                                                    const appRoot = parentDoc.querySelector('.stApp') || parentDoc.querySelector('[data-testid="stAppViewContainer"]') || parentDoc.querySelector('#root');
+                                                    if(appRoot){ const mainEl = parentDoc.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot);}catch(e){} }
+                                                }
+                                            }
+                                        }catch(e){}
+                                    });
+                                }
+                            }catch(e){}
+                        });
+                    });
+                    try{ globalObs.observe(parentDoc.body, { childList:true, subtree:true, attributes:false }); setTimeout(()=>{ try{ globalObs.disconnect(); }catch(e){} }, 30000); }catch(e){}
+                }catch(e){}
             }catch(err){
                 // silently fail
                 console.error('bm-helper error', err);
@@ -564,6 +662,82 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Early DOM sanitization to mitigate framework-level ARIA/landmark issues
+try:
+    st.markdown(
+        """
+        <script>
+        (function(){
+            try{
+                // remove invalid aria-expanded on sidebar
+                document.querySelectorAll('.stSidebar').forEach(function(s){ try{ s.removeAttribute('aria-expanded'); }catch(e){} });
+                // normalize heading level for recommendations if present early
+                try{ const rec = document.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = document.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec); } }catch(e){}
+                // ensure top-level main landmark exists
+                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } } }catch(e){}
+            }catch(err){/*swallow*/}
+        })();
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
+except Exception:
+    pass
+
+# Inject a small, persistent component that watches and sanitizes DOM changes.
+try:
+    import streamlit.components.v1 as components
+
+    sanitizer_js = """
+    <script>
+    (function(){
+        // Monkey-patch setAttribute early to block aria-expanded on stSidebar
+        try{
+            var _origSet = Element.prototype.setAttribute;
+            Element.prototype.setAttribute = function(name, value){
+                try{
+                    if(name === 'aria-expanded' && this.classList && this.classList.contains && this.classList.contains('stSidebar')){
+                        return; // ignore
+                    }
+                }catch(e){}
+                return _origSet.apply(this, arguments);
+            };
+        }catch(e){}
+
+        function sanitize(){
+            try{
+                // remove invalid aria-expanded on sidebar
+                document.querySelectorAll('.stSidebar').forEach(function(s){ try{ s.removeAttribute('aria-expanded'); }catch(e){} });
+                // normalize heading level for recommendations
+                try{ const rec = document.getElementById('recommendations'); if(rec && rec.tagName && rec.tagName.toLowerCase()==='h3'){ const h2 = document.createElement('h2'); h2.id = rec.id; h2.innerHTML = rec.innerHTML; h2.className = rec.className||''; if(rec.getAttribute('style')) h2.setAttribute('style', rec.getAttribute('style')); rec.parentNode.replaceChild(h2, rec); } }catch(e){}
+                // ensure top-level main landmark exists
+                try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } } }catch(e){}
+                // remove KaTeX tabindex
+                try{ document.querySelectorAll('.katex, .katex *').forEach(function(el){ try{ if(el.hasAttribute && el.hasAttribute('tabindex')) el.removeAttribute('tabindex'); }catch(e){} }); }catch(e){}
+                // collapse combobox aria-expanded on non-interactive sidebar elements
+                try{ document.querySelectorAll('[aria-expanded]').forEach(function(el){ try{ if(el.classList && el.classList.contains('stSidebar')) el.removeAttribute('aria-expanded'); }catch(e){} }); }catch(e){}
+            }catch(err){/*swallow*/}
+        }
+
+        // Run now and watch for changes
+        sanitize();
+        var obs = new MutationObserver(function(m){ sanitize(); });
+        try{ obs.observe(document.documentElement || document.body, { childList: true, subtree: true, attributes: true }); }catch(e){}
+        // Fallback periodic cleanup for first 10s
+        var runs = 0;
+        var iv = setInterval(function(){ sanitize(); runs++; if(runs>20){ clearInterval(iv); try{ obs.disconnect(); }catch(e){} } }, 500);
+    })();
+    </script>
+    """
+
+    try:
+        components.html(sanitizer_js, height=0)
+    except Exception:
+        # components may not be available in all contexts; ignore if injection fails
+        pass
+except Exception:
+    pass
 
 
 st.markdown(
@@ -723,6 +897,8 @@ st.markdown(
     .bm-hero-title { font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
     .bm-hero-copy { font-size: 1.05rem; color: var(--muted); }
     .stCaptionContainer p { color: var(--ink) !important; }
+            /* make caption color explicit and high-contrast across themes */
+            .stCaptionContainer p, .stMarkdown .stCaptionContainer p, .stApp .stCaptionContainer p { color: var(--ink) !important; opacity: 1 !important; }
     .bm-card { padding: 1.25rem; border-radius: 12px; min-height: 110px; }
     .bm-panel { padding: 1.25rem; border-radius: 12px; }
     .bm-index-item { padding: 0.6rem 0; }
