@@ -3,6 +3,11 @@ import time
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+import pytest
+
+# Skip E2E tests by default in CI unless RUN_E2E=true
+if os.environ.get("RUN_E2E", "false").lower() != "true":
+    pytest.skip("Skipping e2e tests by default (set RUN_E2E=true to enable)", allow_module_level=True)
 
 BASE_URL = os.environ.get('APP_URL', 'http://localhost:8505')
 PROGRESS_FILE = Path(__file__).resolve().parents[2] / "data" / "user_progress.json"
