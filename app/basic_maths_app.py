@@ -714,7 +714,7 @@ try:
                 // ensure top-level main landmark exists
                 try{ if(!document.querySelector('main[role="main"]')){ const appRoot = document.querySelector('.stApp') || document.querySelector('[data-testid="stAppViewContainer"]') || document.querySelector('#root'); if(appRoot){ const mainEl = document.createElement('main'); mainEl.setAttribute('role','main'); try{ appRoot.parentNode.replaceChild(mainEl, appRoot); mainEl.appendChild(appRoot); }catch(e){} } else { try{ document.body.setAttribute('role','main'); }catch(e){} } } }catch(e){}
                 // make toolbar action buttons discoverable
-                try{ document.querySelectorAll('.stToolbarActionButton').forEach(function(btn){ try{ if(!btn.hasAttribute('aria-label')){ const label = btn.getAttribute('title') || btn.textContent.trim(); if(label){ btn.setAttribute('aria-label', label); } else { btn.setAttribute('aria-label', 'Toolbar action'); } } }catch(e){} }); }catch(e){}
+                try{ document.querySelectorAll('[data-testid^="stToolbarActionButton"], .stToolbarActionButton').forEach(function(btn){ try{ if(!btn.hasAttribute('aria-label')){ const label = btn.getAttribute('title') || btn.textContent.trim() || btn.getAttribute('aria-label'); if(label){ btn.setAttribute('aria-label', label); } else { btn.setAttribute('aria-label', 'Toolbar action'); } } }catch(e){} }); }catch(e){}
                 // remove KaTeX tabindex
                 try{ document.querySelectorAll('.katex, .katex *').forEach(function(el){ try{ if(el.hasAttribute && el.hasAttribute('tabindex')) el.removeAttribute('tabindex'); }catch(e){} }); }catch(e){}
                 // collapse combobox aria-expanded on non-interactive sidebar elements
@@ -1805,7 +1805,7 @@ def main():
         action_cols = st.columns(3)
         with action_cols[0]:
             st.markdown(
-                "<section class='bm-card' aria-label='Recommendations'><h3 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>Recommendations</h3><p>Review the top topics the system suggests for your stage and goal.</p></section>",
+                "<section class='bm-card' aria-label='Recommendations'><h2 style='margin-top:0;margin-bottom:0.35rem;font-size:1.05rem'>Recommendations</h2><p>Review the top topics the system suggests for your stage and goal.</p></section>",
                 unsafe_allow_html=True,
             )
         with action_cols[1]:
@@ -1828,7 +1828,7 @@ def main():
 
     elif nav == "Learning Path":
         st.markdown("<div class='bm-eyebrow'>Study folio</div>", unsafe_allow_html=True)
-        st.subheader("Targeted recommendations")
+        st.header("Targeted recommendations")
         rec_cols = st.columns(2)
         for idx, item in enumerate(summary["recommendations"]):
             with rec_cols[idx % 2]:
