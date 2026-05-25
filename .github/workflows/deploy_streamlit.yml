@@ -24,12 +24,15 @@ jobs:
         run: pytest -q
 
       - name: Trigger Streamlit deploy webhook (optional)
-        if: ${{ secrets.STREAMLIT_DEPLOY_HOOK }}
         env:
-          HOOK: ${{ secrets.STREAMLIT_DEPLOY_HOOK }}
+          HOOK: ${{ vars.STREAMLIT_DEPLOY_HOOK }}
           REPO: ${{ github.repository }}
           REF: ${{ github.ref }}
           SHA: ${{ github.sha }}
         run: |
-          echo "Triggering Streamlit deploy webhook"
-          curl -X POST -H "Content-Type: application/json" -d "{\"repo\": \"${REPO}\", \"ref\": \"${REF}\", \"sha\": \"${SHA}\"}" "$HOOK"
+          if [ -n "$HOOK" ]; then
+            echo "Triggering Streamlit deploy webhook"
+            curl -X POST -H "Content-Type: application/json" -d "{\"repo\": \"${REPO}\", \"ref\": \"${REF}\", \"sha\": \"${SHA}\"}" "$HOOK"
+          else
+            echo "STREAMLIT_DEPLOY_HOOK not set; skipping deploy webhook"
+          fi
