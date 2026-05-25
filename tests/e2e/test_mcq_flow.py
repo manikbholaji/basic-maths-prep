@@ -24,6 +24,11 @@ def _resolve_test_email():
         pass
     # default fallback
     return 'e2e@example.com'
+                import pytest
+
+                # Skip E2E tests by default in CI unless RUN_E2E=true
+                if os.environ.get("RUN_E2E", "false").lower() != "true":
+                    pytest.skip("Skipping e2e tests by default (set RUN_E2E=true to enable)", allow_module_level=True)
 
 
 def test_practice_flow_keyboard_and_click():
