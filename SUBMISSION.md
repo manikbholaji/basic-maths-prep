@@ -26,7 +26,7 @@ This document summarizes the project artifacts and how to run the rebuilt maths-
 ## Local setup
 
 ```powershell
-cd "f:\My Project\shapers_academic_advisor"
+cd "f:\My Project\basic-maths-prep"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip

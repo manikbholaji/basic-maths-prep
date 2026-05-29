@@ -35,7 +35,12 @@ def test_practice_flow_wait_for_save():
         page.goto(BASE_URL)
 
         # Sign in (or sign up) so autosave is persisted to user progress
-        page.click('text=Sign in / Sign up')
+        # Wait for sign-in expander to appear and open it
+        try:
+            page.wait_for_selector('text=Sign in / Sign up', timeout=60000)
+            page.click('text=Sign in / Sign up')
+        except Exception:
+            pass
         existing = {}
         try:
             if PROGRESS_FILE.exists():
@@ -48,10 +53,11 @@ def test_practice_flow_wait_for_save():
             page.fill('input[aria-label="Sign up email"]', TEST_EMAIL)
             page.fill('input[aria-label="Create password"]', 'e2e-pass-123')
             page.click('button:has-text("Sign up")')
-
-        page.fill('input[aria-label="Sign in email"]', TEST_EMAIL)
-        page.fill('input[aria-label="Password"]', 'e2e-pass-123')
-        page.click('button:has-text("Sign in")')
+            page.wait_for_selector('text=Signed in as', timeout=60000)
+        else:
+            page.fill('input[aria-label="Sign in email"]', TEST_EMAIL)
+            page.fill('input[aria-label="Password"]', 'e2e-pass-123')
+            page.click('button:has-text("Sign in")')
 
         # Start numerical practice quickly
         page.click('text=Practice Lab')
@@ -73,7 +79,7 @@ def test_practice_flow_wait_for_save():
         # navigate next and click a choice
         page.click('button:has-text("Next")')
         page.wait_for_selector('text=Question 2 of')
-        page.click('.bm-choice')
+        page.locator('.bm-choice:visible').first.click()
 
         # wait briefly for server-side save to flush and assert persisted progress
         time.sleep(1.2)

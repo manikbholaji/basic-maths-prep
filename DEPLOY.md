@@ -4,16 +4,16 @@ This document walks you through pushing the project to GitHub and deploying on S
 
 ## 1) Create a GitHub repository
 
-- Create a new repository on GitHub (e.g., `shapers_academic_advisor`).
+- Create a new repository on GitHub (e.g., `basic-maths-prep`).
 - Locally, in PowerShell or terminal, run:
 
 ```powershell
-cd "f:\My Project\shapers_academic_advisor"
+cd "f:\My Project\basic-maths-prep"
 git init
 git add .
 git commit -m "Initial project scaffold for SHAPERS Academic Advisor"
 # Replace the remote URL with your repo
-git remote add origin https://github.com/<your-username>/shapers_academic_advisor.git
+git remote add origin https://github.com/<your-username>/basic-maths-prep.git
 git branch -M main
 git push -u origin main
 ```
@@ -75,7 +75,7 @@ A basic `python-app.yml` is included under `.github/workflows/` to install depen
 ## 7) Local testing before push
 
 ```powershell
-cd "f:\My Project\shapers_academic_advisor"
+cd "f:\My Project\basic-maths-prep"
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python -m tests.conversational_tests

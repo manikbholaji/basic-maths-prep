@@ -354,29 +354,42 @@ def _heuristic_reply(prompt: str, profile: Dict[str, object]) -> str:
     )
 
 
-def generate_math_reply(prompt: str, profile: Dict[str, object], ai_client=None) -> str:
+def generate_math_reply(prompt: str, profile: Dict[str, object], ai_client=None, history: List[Dict] = None) -> str:
+    """Generate a coach reply, potentially using conversation history and student performance data."""
     if ai_client is not None:
+        # Incorporate diagnostic results if available to provide targeted guidance
+        weak_topics = profile.get('weak_topics', [])
+        
         system_prompt = (
-            "You are a friendly Basic Maths Prep coach for school students. "
-            "Give short, structured advice that fits the learner's grade, board, city, and goal. "
-            "Always include a practical next step and keep the answer grounded in basic maths revision."
+            "You are a friendly and expert Basic Maths Prep coach for school students. "
+            "Your goal is to ensure students have NO gaps in their understanding. "
+            "Use the student's profile (grade, board, city, goal) and their known weak topics to tailor your advice. "
+            "When a student asks a question or shows weakness, guide them through this hierarchy: "
+            "1. Foundational definition, 2. Conceptual 'why', 3. Numerical practice, 4. Exam-style application. "
+            "Always include a practical, specific next step. Keep answers grounded, clear, and professional."
         )
-        user_prompt = (
-            f"Student profile: {profile_summary(profile)}. "
-            f"Weak topics: {', '.join(profile.get('weak_topics', [])) or 'None'}. "
-            f"Question: {prompt}"
+        
+        # Build messages including history
+        messages = [{"role": "system", "content": system_prompt}]
+        if history:
+            # Only take last 4 turns to keep context lean but relevant
+            messages.extend(history[-4:])
+            
+        user_context = (
+            f"Student Profile: {profile_summary(profile)}. "
+            f"Board: {profile.get('board', 'CBSE')}. "
+            f"Current Weaknesses: {', '.join(weak_topics) or 'None identified yet'}. "
         )
+        
+        messages.append({"role": "user", "content": f"{user_context}\nStudent Question: {prompt}"})
+        
         try:
-            response = ai_client.send_message(
-                [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ]
-            )
+            response = ai_client.send_message(messages)
             if isinstance(response, str) and response.strip():
                 return response.strip()
         except Exception:
             pass
+            
     return _heuristic_reply(prompt, profile)
 
 

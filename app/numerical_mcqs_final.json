@@ -1,0 +1,728 @@
+[
+  {
+    "source": "Integers.tex",
+    "question": "-3 - 4 - 5 + 12",
+    "expression": "-3-4-5+12",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source": "Integers.tex",
+    "question": "-2 + 5 - 8 + 3",
+    "expression": "-2+5-8+3",
+    "answer": -2,
+    "choices": [
+      -2,
+      -2.2,
+      -1.7,
+      -2.4
+    ]
+  },
+  {
+    "source": "Integers.tex",
+    "question": "1 - 2 + 3 - 4 + 5",
+    "expression": "1-2+3-4+5",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source": "Integers.tex",
+    "question": "-17 + 24 + 17 - 24",
+    "expression": "-17+24+17-24",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source": "Integers.tex",
+    "question": "-8 + (-12) - (-8) + 12",
+    "expression": "-8+(-12)-(-8)+12",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source": "Integers.tex",
+    "question": "5 - (-3) - 2 - (+7)",
+    "expression": "5-(-3)-2-(+7)",
+    "answer": -1,
+    "choices": [
+      -1,
+      -1.1,
+      -0.85,
+      -1.2
+    ]
+  },
+  {
+    "source": "Integers.tex",
+    "question": "0 - (-14) - 10 - (-10)",
+    "expression": "0-(-14)-10-(-10)",
+    "answer": 14,
+    "choices": [
+      14,
+      15.4,
+      11.9,
+      16.8
+    ]
+  },
+  {
+    "source": "irrational1.tex",
+    "question": "It shows that 5 divides both p and q, which cannot be possible because both p and q are coprime. So, our assumption is wrong. Hence, 5 is irrational.",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source": "FTA.tex",
+    "question": "0pt0.72cmone factor other than 1 and the number itself. & 0.4pt \\\\",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source": "FTA.tex",
+    "question": "0pt0.72cmIt shows that 5 is a factor of the given number, & 0.4pt \\\\",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source": "FTA.tex",
+    "question": "0pt0.72cmother than 1 and the number itself. & 0.4pt \\\\",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  1 &  1 & &  &  4 &  1 & \\\\",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  -3 &  2 & &  &  0 &  -4 & \\\\",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  0 &  5 & &  &  23 &  3 & \\\\",
+    "expression": "0",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  14 &  -1 & &  &  -32 &  5 & \\\\",
+    "expression": "(1)/(4)",
+    "answer": 0.25,
+    "choices": [
+      0.25,
+      0.275,
+      0.2125,
+      0.3
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  -14 &  14 & &  &  23 &  43 & \\\\",
+    "expression": "-(1)/(4)",
+    "answer": -0.25,
+    "choices": [
+      -0.25,
+      -0.275,
+      -0.2125,
+      -0.3
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  -52 &  -12 & &  &  2 &  13 & \\\\",
+    "expression": "-(5)/(2)",
+    "answer": -2.5,
+    "choices": [
+      -2.5,
+      -2.75,
+      -2.125,
+      -3.0
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  2 &  3 & &  &  0 &  5 & \\\\",
+    "expression": "2",
+    "answer": 2,
+    "choices": [
+      2,
+      2.2,
+      1.7,
+      2.4
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  -4 &  1 & &  &  -5 &  -4 & \\\\",
+    "expression": "-4",
+    "answer": -4,
+    "choices": [
+      -4,
+      -4.4,
+      -3.4,
+      -4.8
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  3 &  -3 & &  &  12 &  2 & \\\\",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source": "Polynomials1.tex",
+    "question": "&  34 &  34 & &  &  23 &  -14 & \\\\",
+    "expression": "(3)/(4)",
+    "answer": 0.75,
+    "choices": [
+      0.75,
+      0.825,
+      0.6375,
+      0.9
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "7 & & & & 8 & 3 & \\\\",
+    "expression": "7",
+    "answer": 7,
+    "choices": [
+      7,
+      7.7,
+      5.95,
+      8.4
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "-18 & & & & 10 & & 0 \\\\",
+    "expression": "-18",
+    "answer": -18,
+    "choices": [
+      -18,
+      -19.8,
+      -15.3,
+      -21.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "& & & & 18 & -3 & -5 \\\\",
+    "expression": "18",
+    "answer": 18,
+    "choices": [
+      18,
+      19.8,
+      15.3,
+      21.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "-18.9 & & & & & 2.5 & 3.6 \\\\",
+    "expression": "-18.9",
+    "answer": -18.9,
+    "choices": [
+      -18.9,
+      -20.79,
+      -16.065,
+      -22.68
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "23 & 21 & 19 & & & & 5 \\\\",
+    "expression": "23",
+    "answer": 23,
+    "choices": [
+      23,
+      25.3,
+      19.55,
+      27.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "10 & 7 & & 1 & 30 & & \\\\",
+    "expression": "10",
+    "answer": 10,
+    "choices": [
+      10,
+      11.0,
+      8.5,
+      12.0
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "-3 & -12 & 2 & & 11 & & \\\\",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "3 & 8 & 13 & 18 & & & 78 \\\\",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "5 & &  912 & & 21 & & \\\\",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "& 13 & & 3 & 15 & & \\\\",
+    "expression": "13",
+    "answer": 13,
+    "choices": [
+      13,
+      14.3,
+      11.05,
+      15.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "& 38 & & & 6 & & -22 \\\\",
+    "expression": "38",
+    "answer": 38,
+    "choices": [
+      38,
+      41.8,
+      32.3,
+      45.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "-4 & & & & 6 & & 6 \\\\",
+    "expression": "-4",
+    "answer": -4,
+    "choices": [
+      -4,
+      -4.4,
+      -3.4,
+      -4.8
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "& & 5 & & 7 & & 9 \\\\",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "3 & & & & 10 & 2 & \\\\",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "& & 4 & & 9 & & -8 \\\\",
+    "expression": "4",
+    "answer": 4,
+    "choices": [
+      4,
+      4.4,
+      3.4,
+      4.8
+    ]
+  },
+  {
+    "source": "AP1.tex",
+    "question": "& & 12 & & 50 & & 106 \\\\",
+    "expression": "12",
+    "answer": 12,
+    "choices": [
+      12,
+      13.2,
+      10.2,
+      14.4
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "1 & 3 & 5 & & & 25 & \\\\",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "7 & & & 8 & 3 & & \\\\",
+    "expression": "7",
+    "answer": 7,
+    "choices": [
+      7,
+      7.7,
+      5.95,
+      8.4
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "25 & 20 & 15 & & & -25 & \\\\",
+    "expression": "25",
+    "answer": 25,
+    "choices": [
+      25,
+      27.5,
+      21.25,
+      30.0
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-50 & -45 & -40 & & & 30 & \\\\",
+    "expression": "-50",
+    "answer": -50,
+    "choices": [
+      -50,
+      -55.0,
+      -42.5,
+      -60.0
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "20 & & & 15 & -2 & & -540 \\\\",
+    "expression": "20",
+    "answer": 20,
+    "choices": [
+      20,
+      22.0,
+      17.0,
+      24.0
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-18 & & & 10 & & 0 & \\\\",
+    "expression": "-18",
+    "answer": -18,
+    "choices": [
+      -18,
+      -19.8,
+      -15.3,
+      -21.6
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-12 & 0 & 12 & 10 & & & \\\\",
+    "expression": "-(1)/(2)",
+    "answer": -0.5,
+    "choices": [
+      -0.5,
+      -0.55,
+      -0.425,
+      -0.6
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-7 & -3 & 1 & & & & 1530 \\\\",
+    "expression": "-7",
+    "answer": -7,
+    "choices": [
+      -7,
+      -7.7,
+      -5.95,
+      -8.4
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-18.9 & & & & 2.5 & 3.6 & \\\\",
+    "expression": "-18.9",
+    "answer": -18.9,
+    "choices": [
+      -18.9,
+      -20.79,
+      -16.065,
+      -22.68
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "23 & 21 & 19 & & & 5 & \\\\",
+    "expression": "23",
+    "answer": 23,
+    "choices": [
+      23,
+      25.3,
+      19.55,
+      27.6
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-3 & -12 & 2 & 11 & & & \\\\",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "5 & & & & 3 & & 1050 \\\\",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "& 38 & & 6 & & -22 & \\\\",
+    "expression": "38",
+    "answer": 38,
+    "choices": [
+      38,
+      41.8,
+      32.3,
+      45.6
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "-0.4 & & & 6 & & 0.6 & \\\\",
+    "expression": "-0.4",
+    "answer": -0.4,
+    "choices": [
+      -0.4,
+      -0.44,
+      -0.34,
+      -0.48
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "3 & & & 10 & 2 & & \\\\",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source": "AP2.tex",
+    "question": "& & 4 & 9 & & -8 & \\\\",
+    "expression": "4",
+    "answer": 4,
+    "choices": [
+      4,
+      4.4,
+      3.4,
+      4.8
+    ]
+  },
+  {
+    "source": "Statement2.tex",
+    "question": "A fraction becomes 23 when 1 is added to both the numerator and denominator. If 3 is added to both, it becomes 34. Find the fraction.",
+    "expression": "(2)/(3)",
+    "answer": 0.666667,
+    "choices": [
+      0.666667,
+      0.733334,
+      0.566667,
+      0.8
+    ]
+  },
+  {
+    "source": "Statement2.tex",
+    "question": "If 2 is subtracted from both the numerator and denominator, a fraction becomes 35. Adding 4 to both makes it 57. Find the original fraction.",
+    "expression": "(3)/(5)",
+    "answer": 0.6,
+    "choices": [
+      0.6,
+      0.66,
+      0.51,
+      0.72
+    ]
+  },
+  {
+    "source": "Statement2.tex",
+    "question": "Adding 2 to the numerator and 1 to the denominator gives 34. Adding 1 to both results in 12. Find the fraction.",
+    "expression": "(3)/(4)",
+    "answer": 0.75,
+    "choices": [
+      0.75,
+      0.825,
+      0.6375,
+      0.9
+    ]
+  },
+  {
+    "source": "Ch-2.tex",
+    "question": "(Finding parameter using given zero) If -3 is one of the zeroes of the quadratic polynomial (k-1)x^2 + kx - 3, then find the value of k.",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source": "Ch-2.tex",
+    "question": "(Forming polynomial from sum and product of zeroes) Write a quadratic polynomial whose sum of zeroes is -14 and the product of zeroes is 14.",
+    "expression": "-(1)/(4)",
+    "answer": -0.25,
+    "choices": [
+      -0.25,
+      -0.275,
+      -0.2125,
+      -0.3
+    ]
+  },
+  {
+    "source": "Ch-5.tex",
+    "question": "Multiples in a Range: Determine how many multiples of 6 lie between the integers 50 and 708.",
+    "expression": "6",
+    "answer": 6,
+    "choices": [
+      6,
+      6.6,
+      5.1,
+      7.2
+    ]
+  },
+  {
+    "source": "Ch-5.tex",
+    "question": "Relation between Terms: If 6 times the 6^th term of an AP is equal to 9 times its 9^th term, find the value of the 15^th term.",
+    "expression": "6",
+    "answer": 6,
+    "choices": [
+      6,
+      6.6,
+      5.1,
+      7.2
+    ]
+  },
+  {
+    "source": "Ch-5.tex",
+    "question": "Real-World Application: The production of TV sets in a factory increases uniformly by a fixed number every year. If it produced 16,000 sets in the 6^th year and 22,600 in the 9^th year, find the production during the first year.",
+    "expression": "16,000",
+    "answer": [
+      16,
+      0
+    ],
+    "choices": [
+      [
+        16,
+        0
+      ],
+      "N/A",
+      "N/A",
+      "N/A"
+    ]
+  }
+]

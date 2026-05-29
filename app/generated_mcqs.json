@@ -1,0 +1,1064 @@
+[
+  {
+    "source_file": "Integers.tex",
+    "stem": "$-3 - 4 - 5 + 12$",
+    "expression": "-3-4-5+12",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source_file": "Integers.tex",
+    "stem": "$-2 + 5 - 8 + 3$",
+    "expression": "-2+5-8+3",
+    "answer": -2,
+    "choices": [
+      -2,
+      -2.2,
+      -1.7,
+      -2.4
+    ]
+  },
+  {
+    "source_file": "Integers.tex",
+    "stem": "$1 - 2 + 3 - 4 + 5$",
+    "expression": "1-2+3-4+5",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source_file": "Integers.tex",
+    "stem": "$-17 + 24 + 17 - 24$",
+    "expression": "-17+24+17-24",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source_file": "Integers.tex",
+    "stem": "$-8 + (-12) - (-8) + 12$",
+    "expression": "-8+(-12)-(-8)+12",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source_file": "Integers.tex",
+    "stem": "$5 - (-3) - 2 - (+7)$",
+    "expression": "5-(-3)-2-(+7)",
+    "answer": -1,
+    "choices": [
+      -1,
+      -1.1,
+      -0.85,
+      -1.2
+    ]
+  },
+  {
+    "source_file": "Integers.tex",
+    "stem": "$0 - (-14) - 10 - (-10)$",
+    "expression": "0-(-14)-10-(-10)",
+    "answer": 14,
+    "choices": [
+      14,
+      15.4,
+      11.9,
+      16.8
+    ]
+  },
+  {
+    "source_file": "irrational1.tex",
+    "stem": "\\normalsize{It shows that $5$ divides both $p$ and $q$, which cannot be possible because both $p$ and $q$ are coprime. So, our assumption is wrong. Hence, $\\sqrt{5}$ is irrational.}",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "FTA.tex",
+    "stem": "\\rule{0pt}{0.72cm}one factor other than $1$ and the number itself. & \\rule{\\linewidth}{0.4pt} \\\\",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source_file": "FTA.tex",
+    "stem": "\\rule{0pt}{0.72cm}It shows that $5$ is a factor of the given number, & \\rule{\\linewidth}{0.4pt} \\\\",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "FTA.tex",
+    "stem": "\\rule{0pt}{0.72cm}other than $1$ and the number itself. & \\rule{\\linewidth}{0.4pt} \\\\",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source_file": "Graph1.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt, text=black!60] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph1.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt, text=black!60] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph1.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt, text=black!60] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph1.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt, text=black!60] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph2.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt, text=black!60] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph2.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt, text=black!60] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph2.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt, text=black!60] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph2.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt, text=black!60] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph3.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt, text=black!60] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph3.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt, text=black!60] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph3.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt, text=black!60] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph3.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt, text=black!60] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph4.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt, text=black!60] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph4.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt, text=black!60] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph4.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt, text=black!60] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph4.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt, text=black!60] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Zeroes.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Zeroes.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Zeroes.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Zeroes.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle 1$ & $\\displaystyle 1$ & & \\qno & $\\displaystyle 4$ & $\\displaystyle 1$ & \\\\ \\hline",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle -3$ & $\\displaystyle 2$ & & \\qno & $\\displaystyle 0$ & $\\displaystyle -4$ & \\\\ \\hline",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle 0$ & $\\displaystyle \\sqrt{5}$ & & \\qno & $\\displaystyle 2\\sqrt{3}$ & $\\displaystyle 3$ & \\\\ \\hline",
+    "expression": "0",
+    "answer": 0,
+    "choices": [
+      0
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle \\frac{1}{4}$ & $\\displaystyle -1$ & & \\qno & $\\displaystyle -\\frac{3}{2}$ & $\\displaystyle 5$ & \\\\ \\hline",
+    "expression": "(1)/(4)",
+    "answer": 0.25,
+    "choices": [
+      0.25,
+      0.275,
+      0.2125,
+      0.3
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle -\\frac{1}{4}$ & $\\displaystyle \\frac{1}{4}$ & & \\qno & $\\displaystyle \\frac{2}{3}$ & $\\displaystyle \\frac{4}{3}$ & \\\\ \\hline",
+    "expression": "-(1)/(4)",
+    "answer": -0.25,
+    "choices": [
+      -0.25,
+      -0.275,
+      -0.2125,
+      -0.3
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle -\\frac{5}{2}$ & $\\displaystyle -\\frac{1}{2}$ & & \\qno & $\\displaystyle \\sqrt{2}$ & $\\displaystyle \\frac{1}{3}$ & \\\\ \\hline",
+    "expression": "-(5)/(2)",
+    "answer": -2.5,
+    "choices": [
+      -2.5,
+      -2.75,
+      -2.125,
+      -3.0
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle 2$ & $\\displaystyle 3$ & & \\qno & $\\displaystyle 0$ & $\\displaystyle 5$ & \\\\ \\hline",
+    "expression": "2",
+    "answer": 2,
+    "choices": [
+      2,
+      2.2,
+      1.7,
+      2.4
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle -4$ & $\\displaystyle 1$ & & \\qno & $\\displaystyle -5$ & $\\displaystyle -4$ & \\\\ \\hline",
+    "expression": "-4",
+    "answer": -4,
+    "choices": [
+      -4,
+      -4.4,
+      -3.4,
+      -4.8
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle 3$ & $\\displaystyle -3$ & & \\qno & $\\displaystyle \\frac{1}{2}$ & $\\displaystyle 2$ & \\\\ \\hline",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source_file": "Polynomials1.tex",
+    "stem": "\\qno \\rowstrut & $\\displaystyle \\frac{3}{4}$ & $\\displaystyle \\frac{3}{4}$ & & \\qno & $\\displaystyle \\frac{2}{3}$ & $\\displaystyle -\\frac{1}{4}$ & \\\\ \\hline",
+    "expression": "(3)/(4)",
+    "answer": 0.75,
+    "choices": [
+      0.75,
+      0.825,
+      0.6375,
+      0.9
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$7$ & & & & $8$ & $3$ & \\\\ \\hline",
+    "expression": "7",
+    "answer": 7,
+    "choices": [
+      7,
+      7.7,
+      5.95,
+      8.4
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$-18$ & & & & $10$ & & $0$ \\\\ \\hline",
+    "expression": "-18",
+    "answer": -18,
+    "choices": [
+      -18,
+      -19.8,
+      -15.3,
+      -21.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "& & & & $18$ & $-3$ & $-5$ \\\\ \\hline",
+    "expression": "18",
+    "answer": 18,
+    "choices": [
+      18,
+      19.8,
+      15.3,
+      21.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$-18.9$ & & & & & $2.5$ & $3.6$ \\\\ \\hline",
+    "expression": "-18.9",
+    "answer": -18.9,
+    "choices": [
+      -18.9,
+      -20.79,
+      -16.065,
+      -22.68
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$23$ & $21$ & $19$ & & & & $5$ \\\\ \\hline",
+    "expression": "23",
+    "answer": 23,
+    "choices": [
+      23,
+      25.3,
+      19.55,
+      27.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$10$ & $7$ & & $1$ & $30$ & & \\\\ \\hline",
+    "expression": "10",
+    "answer": 10,
+    "choices": [
+      10,
+      11.0,
+      8.5,
+      12.0
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$-3$ & $\\displaystyle-\\frac{1}{2}$ & $2$ & & $11$ & & \\\\ \\hline",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$3$ & $8$ & $13$ & $18$ & & & $78$ \\\\ \\hline",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$5$ & & $\\displaystyle 9\\frac{1}{2}$ & & $21$ & & \\\\ \\hline",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "& $13$ & & $3$ & $15$ & & \\\\ \\hline",
+    "expression": "13",
+    "answer": 13,
+    "choices": [
+      13,
+      14.3,
+      11.05,
+      15.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "& $38$ & & & $6$ & & $-22$ \\\\ \\hline",
+    "expression": "38",
+    "answer": 38,
+    "choices": [
+      38,
+      41.8,
+      32.3,
+      45.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$-4$ & & & & $6$ & & $6$ \\\\ \\hline",
+    "expression": "-4",
+    "answer": -4,
+    "choices": [
+      -4,
+      -4.4,
+      -3.4,
+      -4.8
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "& & $5$ & & $7$ & & $9$ \\\\ \\hline",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "$3$ & & & & $10$ & $\\sqrt{2}$ & \\\\ \\hline",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "& & $4$ & & $9$ & & $-8$ \\\\ \\hline",
+    "expression": "4",
+    "answer": 4,
+    "choices": [
+      4,
+      4.4,
+      3.4,
+      4.8
+    ]
+  },
+  {
+    "source_file": "AP1.tex",
+    "stem": "& & $12$ & & $50$ & & $106$ \\\\ \\hline",
+    "expression": "12",
+    "answer": 12,
+    "choices": [
+      12,
+      13.2,
+      10.2,
+      14.4
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$1$ & $3$ & $5$ & & & $25$ & \\\\ \\hline",
+    "expression": "1",
+    "answer": 1,
+    "choices": [
+      1,
+      1.1,
+      0.85,
+      1.2
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$7$ & & & $8$ & $3$ & & \\\\ \\hline",
+    "expression": "7",
+    "answer": 7,
+    "choices": [
+      7,
+      7.7,
+      5.95,
+      8.4
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$25$ & $20$ & $15$ & & & $-25$ & \\\\ \\hline",
+    "expression": "25",
+    "answer": 25,
+    "choices": [
+      25,
+      27.5,
+      21.25,
+      30.0
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$-50$ & $-45$ & $-40$ & & & $30$ & \\\\ \\hline",
+    "expression": "-50",
+    "answer": -50,
+    "choices": [
+      -50,
+      -55.0,
+      -42.5,
+      -60.0
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$20$ & & & $15$ & $-2$ & & $-540$ \\\\ \\hline",
+    "expression": "20",
+    "answer": 20,
+    "choices": [
+      20,
+      22.0,
+      17.0,
+      24.0
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$-18$ & & & $10$ & & $0$ & \\\\ \\hline",
+    "expression": "-18",
+    "answer": -18,
+    "choices": [
+      -18,
+      -19.8,
+      -15.3,
+      -21.6
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$\\displaystyle-\\frac{1}{2}$ & $0$ & $\\displaystyle\\frac{1}{2}$ & $10$ & & & \\\\ \\hline",
+    "expression": "-(1)/(2)",
+    "answer": -0.5,
+    "choices": [
+      -0.5,
+      -0.55,
+      -0.425,
+      -0.6
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$-7$ & $-3$ & $1$ & & & & $1530$ \\\\ \\hline",
+    "expression": "-7",
+    "answer": -7,
+    "choices": [
+      -7,
+      -7.7,
+      -5.95,
+      -8.4
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$-18.9$ & & & & $2.5$ & $3.6$ & \\\\ \\hline",
+    "expression": "-18.9",
+    "answer": -18.9,
+    "choices": [
+      -18.9,
+      -20.79,
+      -16.065,
+      -22.68
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$23$ & $21$ & $19$ & & & $5$ & \\\\ \\hline",
+    "expression": "23",
+    "answer": 23,
+    "choices": [
+      23,
+      25.3,
+      19.55,
+      27.6
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$-3$ & $\\displaystyle-\\frac{1}{2}$ & $2$ & $11$ & & & \\\\ \\hline",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$5$ & & & & $3$ & & $1050$ \\\\ \\hline",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "& $38$ & & $6$ & & $-22$ & \\\\ \\hline",
+    "expression": "38",
+    "answer": 38,
+    "choices": [
+      38,
+      41.8,
+      32.3,
+      45.6
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$-0.4$ & & & $6$ & & $0.6$ & \\\\ \\hline",
+    "expression": "-0.4",
+    "answer": -0.4,
+    "choices": [
+      -0.4,
+      -0.44,
+      -0.34,
+      -0.48
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "$3$ & & & $10$ & $\\sqrt{2}$ & & \\\\ \\hline",
+    "expression": "3",
+    "answer": 3,
+    "choices": [
+      3,
+      3.3,
+      2.55,
+      3.6
+    ]
+  },
+  {
+    "source_file": "AP2.tex",
+    "stem": "& & $4$ & $9$ & & $-8$ & \\\\ \\hline",
+    "expression": "4",
+    "answer": 4,
+    "choices": [
+      4,
+      4.4,
+      3.4,
+      4.8
+    ]
+  },
+  {
+    "source_file": "Statement2.tex",
+    "stem": "\\questionrow{A fraction becomes $\\frac{2}{3}$ when 1 is added to both the numerator and denominator. If 3 is added to both, it becomes $\\frac{3}{4}$. Find the fraction.}",
+    "expression": "(2)/(3)",
+    "answer": 0.666667,
+    "choices": [
+      0.666667,
+      0.733334,
+      0.566667,
+      0.8
+    ]
+  },
+  {
+    "source_file": "Statement2.tex",
+    "stem": "\\questionrow{If 2 is subtracted from both the numerator and denominator, a fraction becomes $\\frac{3}{5}$. Adding 4 to both makes it $\\frac{5}{7}$. Find the original fraction.}",
+    "expression": "(3)/(5)",
+    "answer": 0.6,
+    "choices": [
+      0.6,
+      0.66,
+      0.51,
+      0.72
+    ]
+  },
+  {
+    "source_file": "Statement2.tex",
+    "stem": "\\questionrow{Adding 2 to the numerator and 1 to the denominator gives $\\frac{3}{4}$. Adding 1 to both results in $\\frac{1}{2}$. Find the fraction.}",
+    "expression": "(3)/(4)",
+    "answer": 0.75,
+    "choices": [
+      0.75,
+      0.825,
+      0.6375,
+      0.9
+    ]
+  },
+  {
+    "source_file": "Graph5.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt, text=black!60] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph5.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt, text=black!60] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph5.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt, text=black!60] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph5.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt, text=black!60] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Ch-2.tex",
+    "stem": "\\item \\textbf{(Finding parameter using given zero)} If $-3$ is one of the zeroes of the quadratic polynomial $(k-1)x^2 + kx - 3$, then find the value of $k$.",
+    "expression": "-3",
+    "answer": -3,
+    "choices": [
+      -3,
+      -3.3,
+      -2.55,
+      -3.6
+    ]
+  },
+  {
+    "source_file": "Ch-2.tex",
+    "stem": "\\item \\textbf{(Forming polynomial from sum and product of zeroes)} Write a quadratic polynomial whose sum of zeroes is $-\\frac{1}{4}$ and the product of zeroes is $\\frac{1}{4}$.",
+    "expression": "-(1)/(4)",
+    "answer": -0.25,
+    "choices": [
+      -0.25,
+      -0.275,
+      -0.2125,
+      -0.3
+    ]
+  },
+  {
+    "source_file": "Ch-5.tex",
+    "stem": "\\item \\textbf{Multiples in a Range:} Determine how many multiples of $6$ lie between the integers $50$ and $708$.",
+    "expression": "6",
+    "answer": 6,
+    "choices": [
+      6,
+      6.6,
+      5.1,
+      7.2
+    ]
+  },
+  {
+    "source_file": "Ch-5.tex",
+    "stem": "\\item \\textbf{Relation between Terms:} If $6$ times the $6^{th}$ term of an AP is equal to $9$ times its $9^{th}$ term, find the value of the $15^{th}$ term.",
+    "expression": "6",
+    "answer": 6,
+    "choices": [
+      6,
+      6.6,
+      5.1,
+      7.2
+    ]
+  },
+  {
+    "source_file": "Ch-5.tex",
+    "stem": "\\item \\textbf{Real-World Application:} The production of TV sets in a factory increases uniformly by a fixed number every year. If it produced $16,000$ sets in the $6^{th}$ year and $22,600$ in the $9^{th}$ year, find the production during the first year.",
+    "expression": "16,000",
+    "answer": [
+      16,
+      0
+    ],
+    "choices": [
+      [
+        16,
+        0
+      ],
+      "N/A",
+      "N/A",
+      "N/A"
+    ]
+  },
+  {
+    "source_file": "Graph6.tex",
+    "stem": "\\node[above, xshift=-4pt, yshift=-3pt, text=black!60] at (5,0) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph6.tex",
+    "stem": "\\node[left, yshift=-4pt, xshift=1pt, text=black!60] at (0,5) {\\small $5$};",
+    "expression": "5",
+    "answer": 5,
+    "choices": [
+      5,
+      5.5,
+      4.25,
+      6.0
+    ]
+  },
+  {
+    "source_file": "Graph6.tex",
+    "stem": "\\node[above, xshift=1pt, yshift=-4pt, text=black!60] at (-5,0) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  },
+  {
+    "source_file": "Graph6.tex",
+    "stem": "\\node[left, yshift=4pt, xshift=1pt, text=black!60] at (0,-5) {\\small $-5$};",
+    "expression": "-5",
+    "answer": -5,
+    "choices": [
+      -5,
+      -5.5,
+      -4.25,
+      -6.0
+    ]
+  }
+]

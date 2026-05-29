@@ -14,7 +14,7 @@ Basic Maths Prep is a Streamlit study site for school maths revision. It uses an
 ## Local setup
 
 ```powershell
-cd "f:\My Project\shapers_academic_advisor"
+cd "f:\My Project\basic-maths-prep"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -25,7 +25,7 @@ streamlit run app/streamlit_app.py
 ## Testing
 
 ```powershell
-cd "f:\My Project\shapers_academic_advisor"
+cd "f:\My Project\basic-maths-prep"
 python -m pytest -q
 ```
 

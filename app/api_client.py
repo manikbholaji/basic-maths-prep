@@ -15,6 +15,9 @@ except Exception:
     OpenAIClientClass = None
 
 
+# Module-level cache for Google models to avoid repeated discovery network calls
+_GOOGLE_DISCOVERY_CACHE = {}
+
 class AIClient:
     """AI client wrapper supporting modern OpenAI Python client or a mock responder.
 
@@ -28,13 +31,13 @@ class AIClient:
         reply = client.send_message(messages)
     """
 
-    def __init__(self, provider="OpenAI", api_key=None, model="gpt-3.5-turbo"):
-        self.provider = provider
-        self.model = self._normalize_model(provider, model)
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+    def __init__(self, provider="OpenAI", api_key=None, model="auto"):
+        self.provider = provider.lower()
+        self.api_key = api_key or os.environ.get("OPENAI_API_KEY") if self.provider == "openai" else (api_key or os.environ.get("GOOGLE_API_KEY"))
+        self.model = self._normalize_model(self.provider, model)
         self.client = None
 
-        if self.provider.lower() == "openai" and self.api_key:
+        if self.provider == "openai" and self.api_key:
             # Prefer new OpenAI client when available
             if OpenAIClientClass is not None:
                 try:
@@ -51,9 +54,14 @@ class AIClient:
     def _normalize_model(self, provider, model):
         value = (model or "").strip()
         if value.lower() in ("", "auto", "default"):
-            if (provider or "").lower() == "openai":
+            if provider == "openai":
                 return "gpt-4o-mini"
+            if provider == "google":
+                return "gemini-1.5-flash"
             return "auto"
+        # If model name looks like OpenAI but provider is Google, fix it
+        if provider == "google" and value.startswith("gpt-"):
+            return "gemini-1.5-flash"
         return value
 
     def send_message(self, messages):
@@ -271,7 +279,11 @@ class AIClient:
                 normalized = normalized.split("models/", 1)[1]
             if normalized.lower().startswith("gpt-"):
                 normalized = "gemini-1.5-flash"
-            return [normalized] if self._google_model_supports_text({"name": normalized}) else []
+            return [normalized]
+
+        # Check global cache first to avoid discovery delay
+        if api_key in _GOOGLE_DISCOVERY_CACHE:
+            return _GOOGLE_DISCOVERY_CACHE[api_key]
 
         url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
         try:
@@ -307,6 +319,9 @@ class AIClient:
             for candidate in candidates:
                 if candidate not in ordered:
                     ordered.append(candidate)
+            
+            # Cache the result
+            _GOOGLE_DISCOVERY_CACHE[api_key] = ordered
             return ordered
         except Exception:
             return []
