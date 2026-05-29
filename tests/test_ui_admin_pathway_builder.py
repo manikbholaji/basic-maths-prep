@@ -18,12 +18,16 @@ def test_profile_save_updates_dashboard_summary():
     at.selectbox[4].set_value("Evening")
     at.selectbox[5].set_value("Balanced")
     at.date_input[0].set_value(date.today() + timedelta(days=45))
-    at.button[2].click()
+    
+    # Use label to find the save button
+    save_btn = next(b for b in at.button if b.label == "Save profile")
+    save_btn.click()
     at = at.run(timeout=20)
 
     assert at.session_state["maths_profile_saved"]["student_name"] == "Aanya"
     assert at.session_state["maths_profile_saved"]["grade"] == "Class 10"
     assert at.session_state["maths_profile_saved"]["email"] == "aanya@example.com"
+    # The dashboard summary should contain the new profile info
     assert any("Basic Maths Prep" in item.value for item in at.markdown)
 
 
@@ -33,14 +37,17 @@ def test_practice_lab_reply_uses_saved_profile():
     at.text_input[0].set_value("Aanya")
     at.text_input[1].set_value("aanya@example.com")
     at.selectbox[1].set_value("Class 10")
-    at.button[2].click()
+    
+    save_btn = next(b for b in at.button if b.label == "Save profile")
+    save_btn.click()
     at = at.run(timeout=20)
 
+    # Navigate to Practice Lab
     at.radio[0].set_value("Practice Lab")
     at = at.run(timeout=20)
 
-    at.text_area[0].set_value("What should I revise next for maths?")
-    next(button for button in at.button if button.label == "Generate coach reply").click()
+    # The app now uses st.chat_input
+    at.chat_input[0].set_value("What should I revise next for maths?")
     at = at.run(timeout=20)
 
     assistant_messages = [message["content"] for message in at.session_state["maths_chat"] if message["role"] == "assistant"]

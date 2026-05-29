@@ -72,6 +72,46 @@ def _extract_brief(tex: str) -> str:
     return re.sub(r"\s+", " ", tex)[:200]
 
 
+def categorize_question(q: Dict) -> Dict[str, bool]:
+    """Determine multi-dimensional categories for a question based on heuristics."""
+    text = (str(q.get("question", "")) + " " + str(q.get("explanation", ""))).lower()
+    
+    # Foundational: Basic definitions or very simple first-principles
+    is_foundational = any(w in text for w in ["basic", "simple", "foundation", "definition", "primary", "concept of", "what is"])
+    
+    # Conceptual: Focuses on "why" or theory rather than just calculation
+    is_conceptual = any(w in text for w in ["why", "concept", "principle", "reason", "because", "define", "statement", "theory", "explain"])
+    
+    # Numerical: Involves explicit calculations or numbers
+    is_numerical = bool(re.search(r"\d|\$|\\frac|\\sqrt|x\^|x\b|=", text))
+    
+    # Difficulty levels
+    is_basic = not is_numerical or (len(text) < 60 and "solve" not in text)
+    is_intermediate = is_numerical and len(text) >= 60 and not any(w in text for w in ["complex", "advanced", "hard", "difficult"])
+    
+    # Board / Exam Relevance
+    is_cbse = any(w in text for w in ["cbse", "ncert", "board", "syllabus", "grade", "class"])
+    is_common = any(w in text for w in ["common", "frequent", "usually", "often", "standard"])
+    is_exam = any(w in text for w in ["exam", "test", "important", "previous year", "sample paper", "mark"]) or is_cbse
+
+    return {
+        "foundational": is_foundational,
+        "conceptual": is_conceptual,
+        "numerical": is_numerical,
+        "basic": is_basic,
+        "intermediate": is_intermediate,
+        "cbse": is_cbse,
+        "common": is_common,
+        "exam": is_exam
+    }
+
+
+def tag_question(q: Dict) -> Dict:
+    """Add multi-dimensional categories to a question dictionary."""
+    q["categories"] = categorize_question(q)
+    return q
+
+
 def _question_numeric_score(question: Dict) -> int:
     parts = [str(question.get("question", ""))]
     parts.extend(str(choice) for choice in (question.get("choices", []) or []))
@@ -121,27 +161,27 @@ def _make_numerical_topic_questions(title: str, brief: str, level: str, seed: in
         q2_ans = a * c
         q3_ans = q2_ans - b
         return [
-            {
+            tag_question({
                 "id": f"{title}-num-1",
                 "question": f"What is ${a} + {b}$?",
                 "choices": _int_choices(q1_ans),
                 "answer": 0,
                 "explanation": f"Add the numbers directly. {topic_note}",
-            },
-            {
+            }),
+            tag_question({
                 "id": f"{title}-num-2",
                 "question": f"A student solves {a} questions each day for {c} days. How many questions are solved in all?",
                 "choices": _int_choices(q2_ans),
                 "answer": 0,
                 "explanation": f"Multiply the daily count by the number of days. {topic_note}",
-            },
-            {
+            }),
+            tag_question({
                 "id": f"{title}-num-3",
                 "question": f"What is ${a * c} - {b}$?",
                 "choices": _int_choices(q3_ans),
                 "answer": 0,
                 "explanation": f"Subtract carefully and check the count. {topic_note}",
-            },
+            }),
         ]
 
     if level == "middle":
@@ -149,54 +189,54 @@ def _make_numerical_topic_questions(title: str, brief: str, level: str, seed: in
         q2_ans = a * b
         q3_ans = (c * 3) + a
         return [
-            {
+            tag_question({
                 "id": f"{title}-num-1",
                 "question": f"What is {a * 25}% of 100?",
                 "choices": _int_choices(q1_ans),
                 "answer": 0,
                 "explanation": f"Convert the percentage to a value out of 100. {topic_note}",
-            },
-            {
+            }),
+            tag_question({
                 "id": f"{title}-num-2",
                 "question": f"The ratio of pens to pencils is 1:{b}. If there are {a} pens, how many pencils are there?",
                 "choices": _int_choices(q2_ans),
                 "answer": 0,
                 "explanation": f"Use the ratio to scale the second quantity. {topic_note}",
-            },
-            {
+            }),
+            tag_question({
                 "id": f"{title}-num-3",
                 "question": f"What is $3 \\times {c} + {a}$?",
                 "choices": _int_choices(q3_ans),
                 "answer": 0,
                 "explanation": f"Follow order of operations. {topic_note}",
-            },
+            }),
         ]
 
     q1_ans = a * b - c
     q2_ans = 2 * a + 3 * b
     q3_ans = a * a - b
     return [
-        {
+        tag_question({
             "id": f"{title}-num-1",
             "question": f"Solve $2x + {b} = {2 * a + b}$.",
             "choices": _int_choices(a),
             "answer": 0,
             "explanation": f"Subtract {b} from both sides and divide by 2. {topic_note}",
-        },
-        {
+        }),
+        tag_question({
             "id": f"{title}-num-2",
             "question": f"If $x = {a}$, what is the value of $2x + 3 \\times {b}$?",
             "choices": _int_choices(q2_ans),
             "answer": 0,
             "explanation": f"Substitute the value of x and evaluate carefully. {topic_note}",
-        },
-        {
+        }),
+        tag_question({
             "id": f"{title}-num-3",
             "question": f"If $x = {a}$, what is the value of $x^2 - {b}$?",
             "choices": _int_choices(q3_ans),
             "answer": 0,
             "explanation": f"Square first, then subtract. {topic_note}",
-        },
+        }),
     ]
 
 
@@ -298,13 +338,13 @@ def _expand_kb_with_ai(ai_client, level: str, needed: int, kb: Optional[Dict] = 
                 level_node[domain_id] = {"title": "AI generated questions", "source_file": None, "brief": "AI-generated", "auto_generated": True, "questions": []}
             for idx, item in enumerate(data, start=1):
                 qid = f"{domain_id}-{len(level_node[domain_id]['questions'])+1}"
-                q = {
+                q = tag_question({
                     "id": qid,
                     "question": item.get("question") or item.get("prompt") or "",
                     "choices": item.get("choices") or item.get("options") or [],
                     "answer": int(item.get("answer", 0)) if item.get("answer") is not None else 0,
                     "explanation": item.get("explanation", ""),
-                }
+                })
                 level_node[domain_id]["questions"].append(q)
                 added += 1
 
@@ -485,6 +525,29 @@ def get_domain_practice(domain_id: str, kb: Optional[Dict] = None, top_n: int = 
                     qs = _prioritize_questions(sub_node.get("questions", []))
                     return qs[:top_n]
     return []
+
+
+def sample_numerical_practice(level: str = "middle", num_questions: int = 20, kb: Optional[Dict] = None) -> List[Dict]:
+    """Return a prioritized list of questions from the `numerical-practice` domain for quick practice.
+
+    This is a convenience wrapper used by the app to load numerical practice sets.
+    """
+    kb = kb or load_kb()
+    # attempt to read the specific domain under the requested level
+    domain = kb.get("mcq_bank", {}).get(level, {}).get("domains", {}).get("numerical-practice")
+    if domain and domain.get("questions"):
+        return _prioritize_questions(domain.get("questions", []))[:min(num_questions, len(domain.get("questions", [])))]
+    # fallback: gather high-scoring numeric questions across the KB
+    items = []
+    for lk, level_data in kb.get("mcq_bank", {}).items():
+        for did, dom in level_data.get("domains", {}).items():
+            for q in dom.get("questions", []):
+                if _question_numeric_score(q) >= 4:
+                    items.append(q)
+    if not items:
+        return []
+    items = _prioritize_questions(items)
+    return items[:min(num_questions, len(items))]
 
 
 def _find_question_in_kb(qid: str, kb: Optional[Dict] = None):
@@ -751,7 +814,7 @@ def generate_variant_question(q: Dict, variant_index: int = 1) -> Dict:
         # place correct answer at index 0
         new_q["answer"] = 0
         new_q["explanation"] = q.get("explanation", "") + " (variant equation)"
-        return new_q
+        return tag_question(new_q)
 
     # Quadratic handling: detect and build variants
     quad = _build_quadratic_variant(qtext, variant_index=variant_index)
@@ -760,26 +823,165 @@ def generate_variant_question(q: Dict, variant_index: int = 1) -> Dict:
         new_q["choices"] = quad.get("choices", [])
         new_q["answer"] = quad.get("answer", 0)
         new_q["explanation"] = q.get("explanation", "") + " (quadratic variant)"
-        return new_q
+        return tag_question(new_q)
 
     # fallback: perturb numeric tokens in question and choices
     new_q["question"] = _perturb_number_str(qtext)
-    new_choices = []
-    any_changed = False
-    for ch in choices:
-        new_ch = _perturb_number_str(ch)
-        if new_ch != ch:
-            any_changed = True
-        new_choices.append(new_ch)
+    # use pedagogical distractor generation when possible
+    gen_choices = _generate_distractors_for_question(q)
+    new_q["choices"] = gen_choices
+    new_q["answer"] = 0
+    new_q["explanation"] = q.get("explanation", "") + " (variant with pedagogical distractors)"
+    return tag_question(new_q)
 
-    if not any_changed:
-        new_q["question"] = qtext + " (variant)"
-        new_choices = choices[:]
 
-    new_q["choices"] = new_choices
-    new_q["answer"] = int(q.get("answer", 0)) if len(new_choices) == len(choices) else 0
-    new_q["explanation"] = q.get("explanation", "")
-    return new_q
+def _generate_distractors_for_question(q: Dict, n_opts: int = 4) -> List[str]:
+    """Return a list of `n_opts` choices with the correct answer first using problem-type heuristics."""
+    from fractions import Fraction
+
+    choices = []
+    orig_choices = q.get("choices") or []
+    # If original choices exist, prefer to use them (but re-order/generate pedagogical distractors)
+    if orig_choices:
+        try:
+            correct_idx = int(q.get("answer", 0))
+            correct_val = str(orig_choices[correct_idx])
+        except Exception:
+            correct_val = str(orig_choices[0])
+    else:
+        # no choices; try to infer answer from 'answer' field
+        correct_val = str(q.get("answer", ""))
+
+    # helpers
+    def as_frac_parts(s: str):
+        m = re.search(r"(\d+)\s*/\s*(\d+)", s)
+        if m:
+            return int(m.group(1)), int(m.group(2))
+        return None
+    def as_mixed_frac(s: str):
+        # match formats like '1 1/2' or '1\t1/2'
+        m = re.search(r"(\d+)\s+(\d+)\s*/\s*(\d+)", s)
+        if m:
+            return int(m.group(1)), int(m.group(2)), int(m.group(3))
+        return None
+
+    # Try fraction-like: produce pedagogical distractors (swap, wrong simplification, common-denominator mistakes)
+    fp = as_frac_parts(correct_val) or as_frac_parts(q.get("question", ""))
+    if fp:
+        a, b = fp
+        if b == 0:
+            choices = [correct_val]
+        else:
+            correct = Fraction(a, b)
+            # common student mistakes
+            swapped = Fraction(b, a) if a != 0 else correct
+            # wrong simplification (e.g., cancel a factor incorrectly)
+            simp_wrong = None
+            if a % 2 == 0 and b % 2 == 0:
+                simp_wrong = Fraction(a // 2, b // 2 + 1)
+            # common-denominator error for addition/subtraction: treat numerators as if denominators equal
+            cd_error = Fraction(a + b, b)
+            cand = [correct, swapped, cd_error]
+            if simp_wrong:
+                cand.append(simp_wrong)
+            # ensure we have n_opts candidates
+            i = 1
+            while len(cand) < n_opts:
+                cand.append(Fraction(a + i, b + i))
+                i += 1
+            choices = [str(int(c)) if c.denominator == 1 else f"{c.numerator}/{c.denominator}" for c in cand[:n_opts]]
+        return choices[:n_opts]
+
+    # Percent handling: detect '%' or 'percent' in question or correct_val
+    if '%' in correct_val or re.search(r'percent|%', q.get('question', ''), re.I):
+        # attempt to parse numeric part
+        m = re.search(r"(-?\d+\.?\d*)\s*%", correct_val) or re.search(r"(\d+\.?\d*)\s*%", q.get('question',''))
+        if m:
+            base = float(m.group(1))
+            # distractors: mis-scaled by 10x, off-by-10, decimal misplacement
+            cand = [f"{base}%", f"{base*10}%", f"{base/10}%", f"{round(base+10,2)}%"]
+            return [str(c) for c in cand[:n_opts]]
+
+    # Mixed fraction handling (e.g., '1 1/2')
+    mf = as_mixed_frac(correct_val) or as_mixed_frac(q.get('question',''))
+    if mf:
+        whole, nume, den = mf
+        from fractions import Fraction
+        correct = Fraction(whole * den + nume, den)
+        # distractors: wrong conversion (forget whole), swap numerator/denominator in fractional part, off-by-one
+        forget_whole = Fraction(nume, den)
+        swap_frac = Fraction(den, nume) if nume != 0 else forget_whole
+        off_by = Fraction(whole * den + nume + 1, den)
+        cand = [correct, forget_whole, swap_frac, off_by]
+        choices = [str(int(c)) if c.denominator == 1 else f"{c.numerator}/{c.denominator}" for c in cand[:n_opts]]
+        return choices[:n_opts]
+
+    # Algebraic: if question asks to solve simple linear equation, build distractors using parser
+    try:
+        lin = _try_parse_linear_equation(q.get('question',''))
+        if lin:
+            # correct solution x = (c - b)/a
+            a = lin['a']; b = lin['b']; c = lin['c']
+            try:
+                correct_x = (c - b) / a
+                opts = [correct_x, -correct_x, correct_x + 1, correct_x - 1]
+                choices = [str(int(o)) if abs(o - int(o))<1e-9 else str(round(o,2)) for o in opts[:n_opts]]
+                return choices[:n_opts]
+            except Exception:
+                pass
+    except Exception:
+        pass
+    else:
+        # try numeric parse
+        try:
+            num = float(correct_val)
+            # decimal-like if has '.' or not integer
+            if abs(num - int(num)) > 1e-9:
+                # decimal distractors: decimal-shift, misplaced decimal, rounding, off-by-ten
+                shifted = num * 10
+                misplaced = num / 10
+                rounded = round(num, 1) if abs(num - round(num, 1)) > 1e-9 else round(num + 0.1, 1)
+                cand = [num, shifted, misplaced, rounded]
+                choices = [str(round(c, 6)).rstrip('0').rstrip('.') for c in cand]
+            else:
+                n = int(round(num))
+                # integer distractors: off-by-one, swapped digits, sign error
+                swapped = int(str(n)[::-1]) if n >= 10 else n + 2
+                cand = [n, n + 1, n - 1, swapped]
+                # ensure uniqueness
+                seen = []
+                for c in cand:
+                    if c not in seen:
+                        seen.append(c)
+                choices = [str(c) for c in seen[:n_opts]]
+        except Exception:
+            # Non-numeric: fallback to original choices or simple paraphrases
+            if orig_choices:
+                choices = orig_choices[:n_opts]
+            else:
+                # fabricate simple options (keep correct first)
+                choices = [correct_val or "Option A"]
+                i = 1
+                while len(choices) < n_opts:
+                    choices.append(f"Option {chr(65 + i)}")
+                    i += 1
+
+    # normalize length and ensure correct is first and unique
+    uniq = []
+    # place correct value first (normalize)
+    corr = str(choices[0])
+    uniq.append(corr)
+    for c in choices[1:]:
+        cs = str(c)
+        if cs not in uniq:
+            uniq.append(cs)
+    i = 1
+    while len(uniq) < n_opts:
+        cand = f"{corr}+{i}"
+        if cand not in uniq:
+            uniq.append(cand)
+        i += 1
+    return uniq[:n_opts]
 
 
 def generate_retry_questions(result: Dict, kb: Optional[Dict] = None, variants_per_question: int = 1) -> List[Dict]:

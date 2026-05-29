@@ -1,0 +1,24 @@
+name: Keep deployed Streamlit app awake
+
+on:
+  schedule:
+    # run every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping deployed app
+        env:
+          APP_URL: https://mathshot.streamlit.app
+        run: |
+          echo "Pinging $APP_URL"
+          if curl -sSf --max-time 20 "$APP_URL" > /dev/null; then
+            echo "OK"
+            exit 0
+          else
+            echo "FAILED to reach $APP_URL"
+            exit 1
+          fi

@@ -1,5 +1,5 @@
 param(
-    [string]$RepoName = "shapers_academic_advisor",
+    [string]$RepoName = "basic-maths-prep",
     [string]$Description = "Shapers Academic Advisor - Basic Maths Prep",
     [switch]$Private = $false,
     [string]$Branch = "main"

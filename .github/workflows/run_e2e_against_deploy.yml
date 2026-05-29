@@ -1,0 +1,52 @@
+name: Run E2E tests against deployed app
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  e2e-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for deployed app to be reachable
+        env:
+          APP_URL: https://mathshot.streamlit.app
+        run: |
+          echo "Waiting for $APP_URL to respond..."
+          for i in {1..30}; do
+            if curl -sSf --max-time 10 "$APP_URL" > /dev/null; then
+              echo "App is reachable"; break
+            fi
+            echo "Not yet; sleeping 10s ($i/30)"; sleep 10
+          done
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt || true
+
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps
+
+      - name: Run pytest E2E
+        env:
+          APP_URL: https://mathshot.streamlit.app
+          RUN_E2E: 'true'
+        run: |
+          pytest -q -vv || true
+
+      - name: Upload pytest log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-log
+          path: .

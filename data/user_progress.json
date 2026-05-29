@@ -1,0 +1,253 @@
+{
+  "tester@example.com": {
+    "practice_session": {
+      "questions": [
+        {
+          "id": "numerical-practice-57",
+          "question": "(Finding parameter using given zero) If -3 is one of the zeroes of the quadratic polynomial (k-1)x^2 + kx - 3, then find the value of k.",
+          "choices": [
+            "-3",
+            "-2",
+            "-4",
+            "3"
+          ],
+          "answer": 0,
+          "explanation": "Source: Ch-2.tex"
+        },
+        {
+          "id": "numerical-practice-34",
+          "question": "Evaluate: 5",
+          "choices": [
+            "5",
+            "6",
+            "4",
+            "-5"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP1.tex"
+        },
+        {
+          "id": "numerical-practice-21",
+          "question": "Evaluate: (3)/(4)",
+          "choices": [
+            "0.75",
+            "1.25",
+            "1.75",
+            "2.25"
+          ],
+          "answer": 0,
+          "explanation": "Source: Polynomials1.tex"
+        },
+        {
+          "id": "numerical-practice-11",
+          "question": "Evaluate: 1",
+          "choices": [
+            "1",
+            "2",
+            "0",
+            "-1"
+          ],
+          "answer": 0,
+          "explanation": "Source: FTA.tex"
+        },
+        {
+          "id": "numerical-practice-12",
+          "question": "Evaluate: 1",
+          "choices": [
+            "1",
+            "2",
+            "0",
+            "-1"
+          ],
+          "answer": 0,
+          "explanation": "Source: Polynomials1.tex"
+        },
+        {
+          "id": "numerical-practice-10",
+          "question": "Evaluate: 5",
+          "choices": [
+            "5",
+            "6",
+            "4",
+            "-5"
+          ],
+          "answer": 0,
+          "explanation": "Source: FTA.tex"
+        },
+        {
+          "id": "numerical-practice-45",
+          "question": "Evaluate: -7",
+          "choices": [
+            "-7",
+            "-6",
+            "-8",
+            "7"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP2.tex"
+        },
+        {
+          "id": "numerical-practice-52",
+          "question": "Evaluate: 3",
+          "choices": [
+            "3",
+            "4",
+            "2",
+            "-3"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP2.tex"
+        },
+        {
+          "id": "numerical-practice-24",
+          "question": "Evaluate: 18",
+          "choices": [
+            "18",
+            "19",
+            "17",
+            "-18"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP1.tex"
+        },
+        {
+          "id": "numerical-practice-53",
+          "question": "Evaluate: 4",
+          "choices": [
+            "4",
+            "5",
+            "3",
+            "-4"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP2.tex"
+        },
+        {
+          "id": "numerical-practice-60",
+          "question": "Relation between Terms: If 6 times the 6^th term of an AP is equal to 9 times its 9^th term, find the value of the 15^th term.",
+          "choices": [
+            "6",
+            "7",
+            "5",
+            "-6"
+          ],
+          "answer": 0,
+          "explanation": "Source: Ch-5.tex"
+        },
+        {
+          "id": "numerical-practice-27",
+          "question": "Evaluate: 10",
+          "choices": [
+            "10",
+            "11",
+            "9",
+            "-10"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP1.tex"
+        },
+        {
+          "id": "numerical-practice-7",
+          "question": "Evaluate: 0 - (-14) - 10 - (-10)",
+          "choices": [
+            "14",
+            "15",
+            "13",
+            "-14"
+          ],
+          "answer": 0,
+          "explanation": "Source: Integers.tex"
+        },
+        {
+          "id": "numerical-practice-51",
+          "question": "Evaluate: -0.4",
+          "choices": [
+            "-0.4",
+            "-4",
+            "-0.04",
+            "0.6"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP2.tex"
+        },
+        {
+          "id": "numerical-practice-43",
+          "question": "Evaluate: -18",
+          "choices": [
+            "-18",
+            "-17",
+            "-19",
+            "18"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP2.tex"
+        },
+        {
+          "id": "numerical-practice-25",
+          "question": "Evaluate: -18.9",
+          "choices": [
+            "-18.9",
+            "-189",
+            "-1.89",
+            "-17.9"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP1.tex"
+        },
+        {
+          "id": "numerical-practice-37",
+          "question": "Evaluate: 12",
+          "choices": [
+            "12",
+            "13",
+            "11",
+            "-12"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP1.tex"
+        },
+        {
+          "id": "numerical-practice-13",
+          "question": "Evaluate: -3",
+          "choices": [
+            "-3",
+            "-2",
+            "-4",
+            "3"
+          ],
+          "answer": 0,
+          "explanation": "Source: Polynomials1.tex"
+        },
+        {
+          "id": "numerical-practice-36",
+          "question": "Evaluate: 4",
+          "choices": [
+            "4",
+            "5",
+            "3",
+            "-4"
+          ],
+          "answer": 0,
+          "explanation": "Source: AP1.tex"
+        },
+        {
+          "id": "numerical-practice-19",
+          "question": "Evaluate: -4",
+          "choices": [
+            "-4",
+            "-3",
+            "-5",
+            "4"
+          ],
+          "answer": 0,
+          "explanation": "Source: Polynomials1.tex"
+        }
+      ],
+      "answers": {
+        "numerical-practice-57": "A",
+        "numerical-practice-34": "A"
+      },
+      "index": 1
+    }
+  }
+}

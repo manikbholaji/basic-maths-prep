@@ -6,8 +6,11 @@ if (-not (Test-Path $python)) {
 }
 $project = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $project
-& $python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-streamlit run app/streamlit_app.py
+$venvPython = Join-Path $project ".venv\Scripts\python.exe"
+if (-not (Test-Path $venvPython)) {
+    & $python -m venv .venv
+    $venvPython = Join-Path $project ".venv\Scripts\python.exe"
+}
+& $venvPython -m pip install --upgrade pip
+& $venvPython -m pip install -r requirements.txt
+& $venvPython -m streamlit run app/streamlit_app.py

@@ -1,0 +1,16 @@
+name: Keep Streamlit App Awake
+
+on:
+  schedule:
+    # every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping deployed Streamlit app
+        run: |
+          echo "Pinging deployed app to keep it awake"
+          curl -sSfL https://mathshot.streamlit.app/ -o /dev/null || true
