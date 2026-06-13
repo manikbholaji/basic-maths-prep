@@ -13,3 +13,4 @@ python-docx
 PyPDF2
 pytesseract
 pdf2image
+pymongo

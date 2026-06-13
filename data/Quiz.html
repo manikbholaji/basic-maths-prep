@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Added Chart.js for pie chart -->
+
+    <style>
+        /* Global Styles */
+        body {
+            background-color: #f5f5f5;
+        }
+
+        /* Start Page Styles */
+        .start-page {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-topic {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .quiz-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .start-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #5B8DFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Quiz Container Styles */
+        .quiz-container {
+          	font-family: Arial, sans-serif;  
+          	display: none; /* Hide quiz container initially */
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Question Menu Styles */
+        .question-menu {
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            display: inline-block;
+            margin-right: 5px;
+            margin-left: 5px;
+            margin-bottom: 5px;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .question-number:hover {
+            background-color: #ccc;
+        }
+
+        /* Question Styles */
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px 20px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Updated CSS for highlighting */
+        .selected {
+            background-color: #5B8DFF !important;
+            color: white !important;
+        }
+
+        .correct {
+            background-color: #4CAF50 !important;
+            color: white !important;
+        }
+
+        .wrong {
+            background-color: #FF6347 !important;
+            color: white !important;
+        }
+
+        /* Updated CSS for hover effect */
+        .option.selected:hover {
+            background-color: #5B8DFF;
+        }
+
+        .option.wrong:hover {
+            background-color: #FF6347;
+        }
+
+        .option.correct:hover {
+            background-color: #4CAF50;
+        }
+
+        .explanation {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #888;
+        }
+
+        /* Progress Bar Styles */
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            height: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #5B8DFF;
+            border-radius: 5px;
+        }
+
+        /* Progress Status Styles */
+        .progress-status {
+            margin: 5px;
+            padding: 10px;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #5B8DFF;
+            color: #fff;
+            border: none;
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        /* Button Container Styles */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button {
+            flex: 1;
+            background-color: #5B8DFF;
+            border: none;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #3366CC;
+        }
+
+        .button:first-of-type {
+            margin-right: 10px;
+        }
+
+        /* Result Page Styles */
+        .result-page {
+            display: none; /* Hide result page initially */
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .result-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            margin-bottom: 20px;
+        }
+      
+      	/* Styling for the input placeholder */
+        ::placeholder {
+            color: #999; /* Placeholder text color */
+            font-style: italic; /* Italic font style */
+          	max-width: 100%;
+        }
+      
+      	/* Styling for the input text */
+        input[type="text"] {
+            text-align: center;
+          	padding: 10px; /* Adjust padding as needed */
+            border: 1px solid #ccc; /* Border color */
+            border-radius: 5px; /* Border radius */
+            font-size: 16px; /* Font size */
+            max-width: 100%; /* Full width */
+            margin-bottom: 13px; /* Margin bottom */
+        }
+      
+    </style>
+</head>
+<body>
+
+<div class="start-page">
+    <h1 class="quiz-topic">Welcome to Math Quiz</h1>
+    <img class="quiz-image" src="https://nadrianova.weebly.com/uploads/2/1/0/2/21026936/published/heron-s-formula.jpg?1573834092" alt="Quiz Image"><br>
+  <input type="text" id="userNameInput" placeholder="Enter your name"><br>
+  <button class="start-button" onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div class="quiz-container">
+    <!-- Question Menu -->
+    <div class="question-menu" id="questionMenu">
+    </div>
+
+    <!-- Progress Status -->
+    <div class="progress-status" id="progressStatus"></div>
+
+    <!-- Question 1 -->
+    <div class="question-container" id="question1">
+        <div class="question">
+            <p>The name of the horizontal line in the Cartesian plane which determines the position of a point is called:</p>
+            <div class="options" id="options1">
+                <div class="option" data-correct="false">Origin</div>
+                <div class="option" data-correct="true">X-axis</div>
+                <div class="option" data-correct="false">Y-axis</div>
+                <div class="option" data-correct="false">Quadrants</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="question-container" id="question2">
+        <div class="question">
+            <p>Which of the following formula is used for finding the area of a triangle?</p>
+            <div class="options" id="options2">
+                <div class="option" data-correct="false">base $\times$ height</div>
+                <div class="option" data-correct="true">$\frac{1}{2}$ $\times$ base $\times$ height</div>
+                <div class="option" data-correct="false">$2$ $\times$ base $\times$ height</div>
+                <div class="option" data-correct="false">base + height</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="question-container" id="question3">
+        <div class="question">
+            <p>In Heron's formula $\sqrt{s(s-a)(s-b)(s-c)}$, what is the value of $s$ if $a, b,$ and $c$ are sides of the triangle?</p>
+            <div class="options" id="options3">
+                <div class="option" data-correct="false">$\frac{(a+b+c)}{4}$</div>
+                <div class="option" data-correct="false">$(a+b+c)$</div>
+                <div class="option" data-correct="true">$\frac{(a+b+c)}{2}$</div>
+                <div class="option" data-correct="false">$2a+2b+2c$</div>
+            </div>
+        </div>
+    </div>	
+  
+  	
+  	      	
+  	 	 <!-- Question 4 -->
+<div class="question-container" id="question4">
+  <div class="question">
+    <p>What is the area of the triangle having sides equal to $10$ cm, $16$ cm, and $24$ cm?</p>
+    <div class="options" id="options1">
+        <div class="option" data-correct="false">$25\sqrt{15}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$35\sqrt{17}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$15\sqrt{13}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="true">$15\sqrt{15}\;\text{cm}^{2}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 5 -->
+<div class="question-container" id="question5">
+  <div class="question">
+    <p>The sides of a triangle are in the proportion of $2 : 3 : 5$ and its perimeter is $200$ cm. The sides of this triangle are:</p>
+    <div class="options" id="options1">
+        <div class="option" data-correct="false">$20$ cm, $30$ cm, $50$ cm</div>
+        <div class="option" data-correct="true">$40$ cm, $60$ cm, $100$ cm</div>
+        <div class="option" data-correct="false">$80$ cm, $120$ cm, $200$ cm</div>
+        <div class="option" data-correct="false">None of These</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 6 -->
+<div class="question-container" id="question6">
+  <div class="question">
+    <p>The sides of a triangle are in the proportion of $2 : 3 : 5$ and its semi-perimeter is $200$ cm. The sides of this triangle are:</p>
+    <div class="options" id="options1">
+        <div class="option" data-correct="false">$20$ cm, $30$ cm, $50$ cm</div>
+        <div class="option" data-correct="false">$40$ cm, $60$ cm, $100$ cm</div>
+        <div class="option" data-correct="true">$80$ cm, $120$ cm, $200$ cm</div>
+        <div class="option" data-correct="false">None of These</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 7 -->
+<div class="question-container" id="question7">
+  <div class="question">
+    <p>The sides of a triangle are in the proportion of $2 : 3 : 5$ and its perimeter is $200\;\text{cm}$. The area of this triangle is:</p>
+    <div class="options" id="options1">
+        <div class="option" data-correct="true">$375\sqrt{23}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$375\sqrt{21}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$345\sqrt{23}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$345\sqrt{21}\;\text{cm}^{2}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 8 -->
+<div class="question-container" id="question8">
+  <div class="question">
+    <p>If the perimeter of an equilateral triangle is $180\;\text{cm}$. Then its area will be:</p>
+    <div class="options" id="options1">
+        <div class="option" data-correct="false">$900\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="true">$900\sqrt{3}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$300\sqrt{3}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$600\sqrt{3}\;\text{cm}^{2}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 9 -->
+<div class="question-container" id="question9">
+  <div class="question">
+    <p>The sides of a right-angled triangle are $122\;\text{m}$, $22\;\text{m}$, and $120\;\text{m}$ respectively. The area of the triangle is:</p>
+    <div class="options" id="options1">
+        <div class="option" data-correct="true">$1320\;\text{m}^{2}$</div>
+        <div class="option" data-correct="false">$1300\;\text{m}^{2}$</div>
+        <div class="option" data-correct="false">$1400\;\text{m}^{2}$</div>
+        <div class="option" data-correct="false">$1420\;\text{m}^{2}$</div>
+    </div>
+  </div>
+</div>
+
+  <!-- Question 10 -->
+<div class="question-container" id="question10">
+  <div class="question">
+    <p>The third side of a triangle with given two sides $18\;\text{cm}$ and $10\;\text{cm}$, respectively and a perimeter equal to $42\;\text{cm}$ is:</p>
+    <div class="options" id="options10">
+        <div class="option" data-correct="false">$26\;\text{cm}$</div>
+        <div class="option" data-correct="false">$13\;\text{cm}$</div>
+        <div class="option" data-correct="true">$14\;\text{cm}$</div>
+        <div class="option" data-correct="false">$28\;\text{cm}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 11 -->
+<div class="question-container" id="question11">
+  <div class="question">
+    <p>The third side of a triangle with given two sides $9\;\text{cm}$ and $5\;\text{cm}$, respectively and a semi-perimeter equal to $21\;\text{cm}$ is:</p>
+    <div class="options" id="options11">
+        <div class="option" data-correct="false">$26\;\text{cm}$</div>
+        <div class="option" data-correct="false">$13\;\text{cm}$</div>
+        <div class="option" data-correct="false">$14\;\text{cm}$</div>
+        <div class="option" data-correct="true">$28\;\text{cm}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 12 -->
+<div class="question-container" id="question12">
+  <div class="question">
+    <p>The equal sides of the isosceles triangle are $12\;\text{cm}$, and the perimeter is $30\;\text{cm}$. The other side of this triangle is:</p>
+    <div class="options" id="options12">
+        <div class="option" data-correct="false">$5\;\text{cm}$</div>
+        <div class="option" data-correct="true">$6\;\text{cm}$</div>
+        <div class="option" data-correct="false">$7\;\text{cm}$</div>
+        <div class="option" data-correct="false">$8\;\text{cm}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 13 -->
+<div class="question-container" id="question13">
+  <div class="question">
+    <p>The area of an equilateral triangle of side $6\;\text{cm}$ is:</p>
+    <div class="options" id="options13">
+        <div class="option" data-correct="false">$900\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$18\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="true">$9\sqrt{3}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$56\sqrt{3}\;\text{cm}^{2}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 14 -->
+<div class="question-container" id="question14">
+  <div class="question">
+    <p>The base of a right triangle is $8\;\text{cm}$ and the hypotenuse is $10\;\text{cm}$. Its area will be:</p>
+    <div class="options" id="options14">
+        <div class="option" data-correct="true">$24\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$40\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$48\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$80\;\text{cm}^{2}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 15 -->
+<div class="question-container" id="question15">
+  <div class="question">
+    <p>The edges of a triangular board are $6\;\text{cm}$, $8\;\text{cm}$, and $10\;\text{cm}$. The cost of painting it at the rate of $9$ paise per $\text{cm}^{2}$ is:</p>
+    <div class="options" id="options15">
+        <div class="option" data-correct="false">Rs $2.00$</div>
+        <div class="option" data-correct="true">Rs $2.16$</div>
+        <div class="option" data-correct="false">Rs $2.48$</div>
+        <div class="option" data-correct="false">Rs $3.00$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 16 -->
+<div class="question-container" id="question16">
+  <div class="question">
+    <p>The lengths of a triangle are $6\;\text{cm}$, $8\;\text{cm}$, and $10\;\text{cm}$. Then the length of perpendicular from the opposite vertex to the side whose length is $8\;\text{cm}$ is:</p>
+    <div class="options" id="options16">
+        <div class="option" data-correct="false">$4\;\text{cm}$</div>
+        <div class="option" data-correct="true">$6\;\text{cm}$</div>
+        <div class="option" data-correct="false">$5\;\text{cm}$</div>
+        <div class="option" data-correct="false">$2\;\text{cm}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 17 -->
+<div class="question-container" id="question17">
+  <div class="question">
+    <p>The length of each side of an equilateral triangle having an area of $9\sqrt{3}\;\text{cm}^{2}$ is:</p>
+    <div class="options" id="options17">
+        <div class="option" data-correct="false">$8\;\text{cm}$</div>
+        <div class="option" data-correct="false">$36\;\text{cm}$</div>
+        <div class="option" data-correct="false">$4\;\text{cm}$</div>
+        <div class="option" data-correct="true">$6\;\text{cm}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 18 -->
+<div class="question-container" id="question18">
+  <div class="question">
+    <p>If the area of an equilateral triangle is $16\sqrt{3}\;\text{cm}^{2}$, then the perimeter of the triangle is:</p>
+    <div class="options" id="options18">
+        <div class="option" data-correct="false">$48\;\text{cm}$</div>
+        <div class="option" data-correct="true">$24\;\text{cm}$</div>
+        <div class="option" data-correct="false">$12\;\text{cm}$</div>
+        <div class="option" data-correct="false">$36\;\text{cm}$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 19 -->
+<div class="question-container" id="question19">
+  <div class="question">
+    <p>A triangular garden has sides $90\;\text{m}$, $140\;\text{m}$, and $80\;\text{m}$. A fence is to be put all around the garden. What will be the total cost of fencing at the rate of Rs $15$ per meter? A $5\;\text{m}$ wide space is to be left on one side for gate opening.</p>
+    <div class="options" id="options19">
+        <div class="option" data-correct="false">Rs $4525$</div>
+        <div class="option" data-correct="false">Rs $4975$</div>
+        <div class="option" data-correct="true">Rs $4575$</div>
+        <div class="option" data-correct="false">Rs $4230$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Question 20 -->
+<div class="question-container" id="question20">
+  <div class="question">
+    <p>The base of an isosceles right triangle is $30\;\text{cm}$. Its area is:</p>
+    <div class="options" id="options20">
+        <div class="option" data-correct="false">$225\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$225\sqrt{3}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="false">$225\sqrt{3}\;\text{cm}^{2}$</div>
+        <div class="option" data-correct="true">$450\;\text{cm}^{2}$</div>
+    </div>
+  </div>
+</div> 	
+  	
+  	
+  
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-bar-fill" style="width: 0;"></div>
+    </div>
+
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button" onclick="prevQuestion()" style="display: none;">Previous</button>
+        <button class="button" onclick="nextQuestion()">Next</button>
+        <button class="button" onclick="submitQuiz()" style="display: none;">Submit</button>
+    </div>
+</div>
+
+<div class="result-page" id="resultPage">
+    <h2 class="result-heading">Quiz Result</h2>
+    <div class="chart-container">
+        <canvas id="resultChart"></canvas>
+    </div>
+    <div id="resultText"></div>
+    <div class="button-container">
+        <button class="button" onclick="showPreviousResult()">Check Mistakes</button>
+    </div>
+</div>
+
+<script>
+    // JavaScript Section
+const questions = document.querySelectorAll('.question-container');
+let currentQuestion = 0;
+const progressBarFill = document.querySelector('.progress-bar-fill');
+const progressStatus = document.getElementById('progressStatus');
+const prevButton = document.querySelector('.button:first-of-type');
+const nextButton = document.querySelector('.button:nth-of-type(2)');
+const submitButton = document.querySelector('.button:last-of-type');
+const questionMenu = document.getElementById('questionMenu');
+const resultPage = document.getElementById('resultPage');
+const resultText = document.getElementById('resultText');
+let userName = '';
+let quizSubmitted = false;
+
+// Store selected options for each question
+const selectedOptions = new Array(questions.length).fill(null);
+
+// Function to generate question menu
+function generateQuestionMenu() {
+    questions.forEach((question, index) => {
+        const menuItem = document.createElement('div');
+        menuItem.classList.add('question-number');
+        menuItem.textContent = `Q${index + 1}`;
+        menuItem.onclick = () => showQuestion(index);
+        questionMenu.appendChild(menuItem);
+    });
+}
+
+
+// Function to handle option selection
+// Function to handle option selection
+function selectOption(option) {
+    const questionContainer = option.closest('.question-container');
+    const options = questionContainer.querySelectorAll('.option');
+    
+    // Check if any option in this question has already been selected
+    const optionAlreadySelected = Array.from(options).some(opt => opt.classList.contains('selected'));
+    
+    // If an option has already been selected, return without doing anything
+    if (resultPage.style.display !== 'none') {
+      if (optionAlreadySelected) {
+        return;
+    }
+    }
+    // Disable all options in the current question
+    if(quizSubmitted){
+    options.forEach(opt => opt.removeEventListener('click', selectOption));
+	}
+    // Select the clicked option
+    options.forEach(opt => opt.classList.remove('selected', 'wrong'));
+    option.classList.add('selected');
+    
+    const questionIndex = Array.from(questions).indexOf(questionContainer);
+    selectedOptions[questionIndex] = option;
+    updateOptionColors();
+    
+}
+
+
+
+
+
+// Function to update the color of options based on selection
+	function updateOptionColors() {
+    questions.forEach((question, index) => {
+        const options = question.querySelectorAll('.option');
+        const selectedOption = selectedOptions[index];
+        const correctOption = question.querySelector('.option[data-correct="true"]');
+        const questionMenuItems = document.querySelectorAll('.question-number');
+        
+        options.forEach(option => {
+            option.classList.remove('selected', 'correct', 'wrong');
+            if (option === selectedOption) {
+                option.classList.add('selected');
+                if (option === correctOption) {
+                    option.classList.add('correct');
+                } else {
+                    option.classList.add('wrong');
+                }
+            }
+        });
+        
+        // Update color of question menu item
+        const questionMenuItem = questionMenuItems[index];
+        questionMenuItem.classList.remove('selected', 'correct', 'wrong');
+        if (selectedOption === correctOption) {
+            questionMenuItem.classList.add('correct');
+        } else if (selectedOption !== null) {
+            questionMenuItem.classList.add('wrong');
+        }
+    });
+}
+
+
+// Function to initialize event listeners for option clicks
+function initializeOptionClickEvents() {
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => {
+        option.addEventListener('click', () => {
+            selectOption(option);
+        });
+    });
+}
+
+// Function to update the progress bar
+function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBarFill.style.width = `${progress}%`;
+}
+
+// Function to update the progress status text
+function updateProgressStatus() {
+    progressStatus.textContent = `Question ${currentQuestion + 1} out of ${questions.length}`;
+}
+
+// Function to update the visibility of navigation buttons
+function updateButtonVisibility() {
+    prevButton.style.display = currentQuestion === 0 ? 'none' : 'inline-block';
+    nextButton.style.display = currentQuestion === questions.length - 1 ? 'none' : 'inline-block';
+    submitButton.style.display = currentQuestion === questions.length - 1 ? 'inline-block' : 'none';
+}
+
+// Function to navigate to the previous question
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+    }
+}
+
+// Function to navigate to the next question
+function nextQuestion() {
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+    }
+}
+
+// Function to show a specific question
+function showQuestion(index) {
+    currentQuestion = index;
+    questions.forEach((question, idx) => {
+        if (idx === index) {
+            question.style.display = 'block';
+            // Restore selected option for the current question
+            const selectedOption = selectedOptions[index];
+            if (selectedOption !== null) {
+                selectedOption.classList.add('selected');
+            }
+        } else {
+            question.style.display = 'none';
+        }
+    });
+
+    updateProgressBar();
+    updateProgressStatus();
+    updateButtonVisibility();
+}
+
+// Function to start the quiz
+function startQuiz() {
+    userName = document.getElementById('userNameInput').value.trim(); // Capture user's name
+  	if (userName === '') {
+        alert('Please enter your name.');
+        return;
+    }
+  	document.querySelector('.start-page').style.display = 'none';
+    document.querySelector('.quiz-container').style.display = 'block';
+    generateQuestionMenu();
+    initializeOptionClickEvents();
+    showQuestion(currentQuestion);
+}
+
+// Function to display the quiz result
+function displayResult(correctCount, totalCount
+
+) {
+  	document.querySelector('.quiz-container').style.display = 'none';
+    document.querySelector('.start-page').style.display = 'none';
+    resultPage.style.display = 'block';
+    resultText.innerHTML = `${userName} got ${correctCount} out of ${totalCount} questions correct.`;
+    renderPieChart(correctCount, totalCount);
+}
+
+// Function to render the pie chart for the quiz result
+function renderPieChart(correctCount, totalCount) {
+    const data = {
+        labels: ['Correct', 'Incorrect'],
+        datasets: [{
+            data: [correctCount, totalCount - correctCount],
+            backgroundColor: ['#4CAF50', '#FF6347'],
+            hoverBackgroundColor: ['#2E8B57', '#CD5C5C']
+        }]
+    };
+
+    const resultChart = document.getElementById('resultChart').getContext('2d');
+
+    if (window.resultPieChart) {
+        window.resultPieChart.data = data;
+        window.resultPieChart.update();
+    } else {
+        window.resultPieChart = new Chart(resultChart, {
+            type: 'pie',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+// Function to submit the quiz
+function submitQuiz() {
+  	quizSubmitted = true;
+    let correctCount = 0;
+    let totalCount = 0;
+    questions.forEach((question, idx) => {
+        const correctOption = question.querySelector('.option[data-correct="true"]');
+        const selectedOption = selectedOptions[idx];
+        if (selectedOption === correctOption) {
+            correctCount++;
+        }
+        totalCount++;
+
+        let explanation = question.querySelector('.explanation');
+        if (!explanation) {
+            explanation = document.createElement('div');
+            explanation.classList.add('explanation');
+            question.appendChild(explanation);
+        }
+        explanation.innerHTML = `Correct answer: ${correctOption.innerHTML}`;
+    });
+    displayResult(correctCount, totalCount);
+}
+
+// Function to show the previous quiz result
+function showPreviousResult() {
+  	let quizSubmitted = false;
+    resultPage.style.display = 'none';
+    document.querySelector('.quiz-container').style.display = 'block';
+    updateOptionColors();
+    showQuestion(currentQuestion);
+}
+</script>
+
+<!-- Existing code... -->
+</body>
+</html>

@@ -32,3 +32,11 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs and temporary files
+*.log
+*.txt
+*.zip
+/temp_artifacts/
+local_quiz.db
+data/local_quiz.db
