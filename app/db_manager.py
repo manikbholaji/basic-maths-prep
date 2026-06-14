@@ -9,10 +9,13 @@ DB_FILE = os.path.join("data", "local_quiz.db")
 
 # Global MongoDB connection cache
 _mongo_client = None
+_use_sqlite = False
 
 def get_mongo_db():
     """Returns a MongoDB database instance if MONGODB_URI is available, else None."""
-    global _mongo_client
+    global _mongo_client, _use_sqlite
+    if _use_sqlite:
+        return None
     uri = os.environ.get("MONGODB_URI")
     if not uri:
         try:
@@ -26,7 +29,7 @@ def get_mongo_db():
         try:
             import pymongo
             if _mongo_client is None:
-                _mongo_client = pymongo.MongoClient(uri)
+                _mongo_client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=3000)
             # Parse DB name from URI or fallback
             db_name = "basic_maths_prep"
             try:
@@ -46,74 +49,76 @@ def is_online_mode():
 
 def init_db():
     """Initializes the active database (SQLite locally or MongoDB online)."""
+    global _use_sqlite
     db = get_mongo_db()
     if db is not None:
         # MongoDB: ensure indexes exist
         try:
+            db.command("ping")
             db.users.create_index("username", unique=True)
             db.quizzes.create_index("username")
             print("MongoDB tables/indexes verified.")
             return True
         except Exception as e:
-            print(f"Failed to initialize MongoDB indexes: {e}")
-            return False
-    else:
-        # SQLite: create tables
-        os.makedirs("data", exist_ok=True)
-        conn = None
-        try:
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            
-            # Create users table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    username TEXT PRIMARY KEY,
-                    password_hash TEXT NOT NULL,
-                    name TEXT NOT NULL
-                )
-            """)
-            
-            # Create quizzes table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS quizzes (
-                    quiz_id TEXT PRIMARY KEY,
-                    username TEXT NOT NULL,
-                    quiz_type TEXT NOT NULL,
-                    input_details TEXT NOT NULL,
-                    questions TEXT NOT NULL,
-                    created_at TEXT NOT NULL,
-                    FOREIGN KEY (username) REFERENCES users(username)
-                )
-            """)
-            
-            conn.commit()
-            print("Local SQLite database verified.")
-            
-            # Migrate users from users.json if database is empty
-            cursor.execute("SELECT COUNT(*) FROM users")
-            if cursor.fetchone()[0] == 0:
-                json_users_path = os.path.join("data", "users.json")
-                if os.path.exists(json_users_path):
-                    try:
-                        with open(json_users_path, "r") as f:
-                            users_data = json.load(f)
-                        for email, u_data in users_data.items():
-                            cursor.execute(
-                                "INSERT INTO users (username, password_hash, name) VALUES (?, ?, ?)",
-                                (email, u_data.get("password_hash"), u_data.get("name", "Student"))
-                            )
-                        conn.commit()
-                        print("Migrated existing users from users.json to local SQLite DB.")
-                    except Exception as ex:
-                        print(f"Could not migrate users.json: {ex}")
-            return True
-        except Exception as e:
-            print(f"Failed to initialize SQLite: {e}")
-            return False
-        finally:
-            if conn:
-                conn.close()
+            print(f"Failed to initialize MongoDB indexes: {e}. Falling back to local SQLite.")
+            _use_sqlite = True
+
+    # SQLite: create tables
+    os.makedirs("data", exist_ok=True)
+    conn = None
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        
+        # Create users table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                password_hash TEXT NOT NULL,
+                name TEXT NOT NULL
+            )
+        """)
+        
+        # Create quizzes table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS quizzes (
+                quiz_id TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                quiz_type TEXT NOT NULL,
+                input_details TEXT NOT NULL,
+                questions TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (username) REFERENCES users(username)
+            )
+        """)
+        
+        conn.commit()
+        print("Local SQLite database verified.")
+        
+        # Migrate users from users.json if database is empty
+        cursor.execute("SELECT COUNT(*) FROM users")
+        if cursor.fetchone()[0] == 0:
+            json_users_path = os.path.join("data", "users.json")
+            if os.path.exists(json_users_path):
+                try:
+                    with open(json_users_path, "r") as f:
+                        users_data = json.load(f)
+                    for email, u_data in users_data.items():
+                        cursor.execute(
+                            "INSERT INTO users (username, password_hash, name) VALUES (?, ?, ?)",
+                            (email, u_data.get("password_hash"), u_data.get("name", "Student"))
+                        )
+                    conn.commit()
+                    print("Migrated existing users from users.json to local SQLite DB.")
+                except Exception as ex:
+                    print(f"Could not migrate users.json: {ex}")
+        return True
+    except Exception as e:
+        print(f"Failed to initialize SQLite: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
 
 def hash_password(password: str) -> str:
     """Generates standard SHA-256 hash for secure credential storage."""
