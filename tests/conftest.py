@@ -24,6 +24,7 @@ def _port_is_open(host: str, port: int) -> bool:
 
 @pytest.fixture(scope="session", autouse=True)
 def ensure_local_streamlit_server():
+	os.environ["MOCK_AI"] = "true"
 	app_url = os.environ.get("APP_URL", "http://localhost:8505")
 	if not _is_localhost_url(app_url):
 		yield

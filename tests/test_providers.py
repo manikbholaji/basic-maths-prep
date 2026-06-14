@@ -43,7 +43,8 @@ def test_dialogflow_health_check(monkeypatch):
     assert res.get('ok') is True
 
 
-def test_openai_health_check_no_key():
+def test_openai_health_check_no_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     client = AIClient(provider='OpenAI', api_key=None)
     res = client.health_check()
     assert res.get('ok') is False

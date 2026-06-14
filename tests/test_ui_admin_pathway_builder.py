@@ -4,7 +4,7 @@ from streamlit.testing.v1 import AppTest
 
 
 def _load_app():
-    return AppTest.from_file("app/streamlit_app.py").run(timeout=20)
+    return AppTest.from_file("app/basic_maths_app.py").run(timeout=20)
 
 
 def test_profile_save_updates_dashboard_summary():

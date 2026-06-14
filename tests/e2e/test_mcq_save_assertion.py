@@ -1,91 +1,105 @@
 import os
 import time
-import json
+import pytest
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import pytest
+from app import db_manager as db
 
 # Skip E2E tests by default in CI unless RUN_E2E=true
 if os.environ.get("RUN_E2E", "false").lower() != "true":
     pytest.skip("Skipping e2e tests by default (set RUN_E2E=true to enable)", allow_module_level=True)
 
 BASE_URL = os.environ.get('APP_URL', 'http://localhost:8505')
-PROGRESS_FILE = Path(__file__).resolve().parents[2] / "data" / "user_progress.json"
-
-
-def _resolve_test_email():
-    env = os.environ.get('E2E_TEST_EMAIL')
-    if env:
-        return env
-    try:
-        if PROGRESS_FILE.exists():
-            data = json.loads(PROGRESS_FILE.read_text(encoding='utf-8'))
-            if isinstance(data, dict) and data:
-                return next(iter(data.keys()))
-    except Exception:
-        pass
-    return 'e2e@example.com'
-
 
 def test_practice_flow_wait_for_save():
-    TEST_EMAIL = _resolve_test_email()
+    test_username = f"e2e_save_{int(time.time())}@example.com"
+    test_password = "password123"
+    test_fullname = "E2E Save Tester"
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto(BASE_URL)
 
-        # Sign in (or sign up) so autosave is persisted to user progress
-        # Wait for sign-in expander to appear and open it
-        try:
-            page.wait_for_selector('text=Sign in / Sign up', timeout=60000)
-            page.click('text=Sign in / Sign up')
-        except Exception:
-            pass
-        existing = {}
-        try:
-            if PROGRESS_FILE.exists():
-                existing = json.loads(PROGRESS_FILE.read_text(encoding='utf-8'))
-        except Exception:
-            existing = {}
+        # Register a new user dynamically
+        page.wait_for_selector('text="Sign In"', timeout=60000)
+        page.get_by_role("tab").nth(1).click() # Click Create Account tab
+        time.sleep(1)
 
-        if TEST_EMAIL not in existing:
-            page.fill('input[aria-label="Full name"]', 'E2E Tester')
-            page.fill('input[aria-label="Sign up email"]', TEST_EMAIL)
-            page.fill('input[aria-label="Create password"]', 'e2e-pass-123')
-            page.click('button:has-text("Sign up")')
-            page.wait_for_selector('text=Signed in as', timeout=60000)
-        else:
-            page.fill('input[aria-label="Sign in email"]', TEST_EMAIL)
-            page.fill('input[aria-label="Password"]', 'e2e-pass-123')
-            page.click('button:has-text("Sign in")')
+        fullname_input = page.locator('input[type="text"]').nth(1)
+        fullname_input.fill(test_fullname)
+        
+        reg_username_input = page.locator('input[type="text"]').nth(2)
+        reg_username_input.fill(test_username)
+        
+        reg_password_input = page.locator('input[type="password"]').nth(1)
+        reg_password_input.fill(test_password)
+        
+        page.get_by_role("button", name="Create Account").click()
+        time.sleep(2)
 
-        # Start numerical practice quickly
-        page.click('text=Practice Lab')
-        page.click('text=Start numerical practice (20)')
-        page.wait_for_selector('text=Question 1 of')
+        # Switch to Sign In tab and log in
+        page.get_by_role("tab").nth(0).click()
+        time.sleep(1)
 
-        # make a selection via keyboard
-        page.keyboard.press('A')
-        # wait for autosave liveregion/text - our app emits 'Auto-saved' briefly
-        try:
-            page.wait_for_selector('text=Auto-saved', timeout=7000)
-        except Exception:
-            # fallback: wait for role=status or aria-live region
-            try:
-                page.wait_for_selector('[role="status"]', timeout=5000)
-            except Exception:
-                pass
+        username_input = page.locator('input[type="text"]').nth(0)
+        username_input.fill(test_username)
+        
+        password_input = page.locator('input[type="password"]').nth(0)
+        password_input.fill(test_password)
+        
+        page.get_by_role("button", name="Sign In").click()
 
-        # navigate next and click a choice
-        page.click('button:has-text("Next")')
-        page.wait_for_selector('text=Question 2 of')
-        page.locator('.bm-choice:visible').first.click()
+        # Wait for dashboard to load
+        page.wait_for_selector(f'text="Welcome, {test_fullname}!"', timeout=30000)
 
-        # wait briefly for server-side save to flush and assert persisted progress
-        time.sleep(1.2)
-        import json
-        assert PROGRESS_FILE.exists(), 'progress file not found'
-        data = json.loads(PROGRESS_FILE.read_text(encoding='utf-8'))
-        assert TEST_EMAIL in data, f'user progress not saved for {TEST_EMAIL}'
+        # Configure parametric quiz
+        page.get_by_text("Mode 2: Tailor from Parameters").click()
+        time.sleep(1)
+
+        page.get_by_label("Topic / Chapter", exact=False).fill("Coordinate Geometry")
+        time.sleep(1)
+
+        # Generate quiz
+        page.get_by_role("button", name="Generate Parametric Quiz").click()
+
+        # Wait for iframe to render
+        page.wait_for_selector('iframe', timeout=60000)
+        time.sleep(2)
+
+        iframe_element = page.query_selector('iframe')
+        frame = iframe_element.content_frame()
+
+        # Start quiz inside iframe
+        frame.wait_for_selector('#userNameInput', timeout=15000)
+        frame.locator('#userNameInput').fill(test_fullname)
+        time.sleep(0.5)
+        frame.evaluate("document.querySelector('.start-button').click()")
+
+        # Solve Q1-Q10 inside iframe
+        for q in range(1, 11):
+            active_q_selector = f'#question{q}'
+            frame.wait_for_selector(active_q_selector, timeout=15000)
+            
+            # Click the first option
+            frame.evaluate(f"document.querySelector('#options{q} .option').click()")
+            time.sleep(0.5)
+            
+            if q == 10:
+                frame.evaluate("document.querySelector('button[onclick=\"submitQuiz()\"]').click()")
+                time.sleep(1)
+            else:
+                frame.evaluate("document.querySelector('button[onclick=\"nextQuestion()\"]').click()")
+                time.sleep(0.5)
+
+        # Wait for results page inside iframe
+        frame.wait_for_selector('#resultPage', timeout=15000)
+        time.sleep(1)
+
+        # Verify database save
+        db.init_db()
+        history = db.get_user_quizzes(test_username)
+        assert len(history) >= 1, "Quiz was not saved in user history database!"
+        assert history[0]["quiz_type"] == "parameter_based", f"Unexpected quiz type: {history[0]['quiz_type']}"
 
         browser.close()
